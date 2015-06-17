@@ -7,10 +7,10 @@
 
 #include <cuda.h>
 
-#include "include/Cell.h"
-#include "include/CUDAQueue.h"
+#include "Cell.h"
+#include "CUDAQueue.h"
 
-__global__ void singleBlockCA (Cell** arrayOfLayers, int numberOfLayers, int* numberOfCellsPerLayer )
+__global__ void singleBlockCA (Cell<20>** arrayOfLayers, int numberOfLayers, int* numberOfCellsPerLayer )
 {
 
 

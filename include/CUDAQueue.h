@@ -15,15 +15,26 @@ template< int maxSize, class T>
 struct CUDAQueue
 {
 	__inline__ __device__
-	void push(const T& element) { auto previousSize = atomicAdd (&m_size, 1); m_data[previousSize] = element;   };
+	bool push(const T& element) {
+
+		auto previousSize = atomicAdd (&m_size, 1);
+		if(previousSize<maxSize)
+		{
+			m_data[previousSize] = element;
+			return true;
+		}else
+			return false;
+	};
 
 	__inline__ __device__
-	void insertArray(T* array, int numElements) {
-		if(numElements + m_size <= maxSize && threadIdx.x < numElements)
+	bool insertArray(T* array, int numElements) {
+		if(numElements + m_size <= maxSize && numElements < blockDim.x && threadIdx.x < numElements)
 		{
 			auto previousSize = atomicAdd(&m_size,1);
 			m_data[previousSize+threadIdx.x] = array[threadIdx.x];
-		}
+			return true;
+		}else
+			return false;
 	}
 	T m_data[maxSize];
 	int m_size;
