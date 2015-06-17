@@ -15,7 +15,10 @@ struct Cell
 {
 	template< int queueMaxSize, class T>
 	__inline__
-	__host__ __device__ neighbourSearch(const CUDAQueue<queueMaxSize, T>&);
+	__host__ __device__ int neighbourSearch(const CUDAQueue<queueMaxSize, T>&);
+
+
+
 
 
 
