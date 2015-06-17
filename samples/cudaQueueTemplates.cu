@@ -1,34 +1,50 @@
+/*
+ * cudaQueueTemplates.cu
+ *
+ *  Created on: Jun 17, 2015
+ *      Author: fpantale
+ */
+
+
 #include <cuda_runtime.h>
 #include <vector>
 #include <iostream>
 #include <algorithm>
-__inline__
-__device__ int push(int* array, int* num, const int& element) 
-{
-	int oldvalue = atomicAdd(num, 1);
-	array[oldvalue] = element;
 
-}
+
+
+// CUDAQueue is a single-block queue.
+// One may want to use it as a __shared__ struct, and have multiple threads
+// pushing data into it.
+template< int maxSize, class T>
+struct CUDAQueue
+{
+	__inline__ __device__
+	void push(const T& element) { auto oldvalue = atomicAdd (&size, 1); data[oldvalue] = element;   };
+
+	T data[maxSize];
+	int size;
+};
+
+
 __global__ void Find3(int* a, int* results, int* N)
 {
 
-	__shared__ int s_threes[1024];
-	__shared__ int threes_num;
-
+	__shared__ CUDAQueue<1024, int> queue ;
 	int index  = threadIdx.x;
 
 	if (threadIdx.x ==0 )
-		threes_num = 0;
+		queue.size= 0;
 	__syncthreads();
 	if(a[index] ==3)
-		push(s_threes, &threes_num, index);
+		queue.push(index);
 
 	__syncthreads();
 
-	if(threadIdx.x < threes_num)
-		results[index] = s_threes[index];
-
-	*N = threes_num;
+	if(threadIdx.x < queue.size)
+		results[index] = queue.data[index];
+	if (threadIdx.x ==0 )
+		*N = queue.size;
 
 
 
