@@ -5,7 +5,6 @@
  *      Author: fpantale
  */
 
-
-
-
 #include <cuda.h>
+
+
