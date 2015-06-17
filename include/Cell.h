@@ -17,9 +17,10 @@ struct Cell
 	__inline__
 	__host__ __device__ int neighbourSearch(const CUDAQueue<queueMaxSize, T>&);
 
+	CUDAQueue<maxSize, int> leftNeighbours;
+	CUDAQueue<maxSize, int> rightNeighbours;
 
-
-
+	int2 hitsIds;
 
 
 
