@@ -9,8 +9,9 @@
 
 #include "Cell.h"
 #include "CUDAQueue.h"
+#include <iostream>
 
-__global__ void singleBlockCA (Cell<20>** arrayOfLayers, int numberOfLayers, int* numberOfCellsPerLayer )
+__global__ void singleBlockCA (Cell<20, c_numParameters>** arrayOfLayers, int numberOfLayers, int* numberOfCellsPerLayer )
 {
 
 
@@ -22,7 +23,6 @@ __global__ void singleBlockCA (Cell<20>** arrayOfLayers, int numberOfLayers, int
 
 int main()
 {
-
 
 
 }
