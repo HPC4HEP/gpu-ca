@@ -24,7 +24,7 @@ class Cell
 public:
 	template< int queueMaxSize, class T>
 	__inline__
-	__host__ __device__ int neighborSearch(const CUDAQueue<queueMaxSize, T>& rightCells)
+	__device__ int neighborSearch(const CUDAQueue<queueMaxSize, T>& rightCells)
 	{
 		int neighborNum = 0;
 		for (auto i= 0; i < rightCells.m_size; ++i)
@@ -54,13 +54,6 @@ public:
 	int m_id;
 	int2 m_hitsIds;
 
-
-
 };
-
-
-
-
-
 
 #endif /* INCLUDE_CELL_H_ */
