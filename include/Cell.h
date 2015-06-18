@@ -30,7 +30,7 @@ public:
 		for (auto i= 0; i < rightCells.m_size; ++i)
 		{
 			auto j = 0;
-			while ( (fabs(m_params.m_data[j] - rightCells.m_data[i].m_params[j])/m_params.m_data[j] < c_maxParRelDifference[j]) && (j < m_params.m_size) )
+			while ( (fabs(2*(m_params.m_data[j] - rightCells.m_data[i].m_params[j]) /(m_params.m_data[j]+rightCells.m_data[i].m_params[j]))  < c_maxParRelDifference[j]) && (j < m_params.m_size) )
 			{
 				++j;
 			}
