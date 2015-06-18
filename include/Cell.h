@@ -47,12 +47,16 @@ public:
 		return neighborNum;
 	}
 
+	__inline__
+	__device__ void increaseState() { atomicAdd(&m_CAState,1); }
+
 	CUDAQueue<maxSize, int> m_leftNeighbors;
 	CUDAQueue<maxSize, int> m_rightNeighbors;
 	CUDAQueue<parNum, float> m_params;
 
 	int m_id;
 	int2 m_hitsIds;
+	int m_CAState;
 
 };
 
