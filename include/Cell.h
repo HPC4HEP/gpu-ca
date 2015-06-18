@@ -22,21 +22,28 @@ template<int maxSize, int parNum>
 class Cell
 {
 public:
+
+
 	template< int queueMaxSize, class T>
 	__inline__
 	__device__ int neighborSearch(const CUDAQueue<queueMaxSize, T>& rightCells)
 	{
 		int neighborNum = 0;
+
 		for (auto i= 0; i < rightCells.m_size; ++i)
 		{
-			auto j = 0;
-			while ( (fabs(2*(m_params.m_data[j] - rightCells.m_data[i].m_params[j]) /(m_params.m_data[j]+rightCells.m_data[i].m_params[j]))  < c_maxParRelDifference[j]) && (j < m_params.m_size) )
+			bool isNeighbor = true;
+			for (auto j =0; j < m_params.m_size; ++j )
 			{
-				++j;
+				isNeighbor = isNeighbor & (fabs(2*(m_params.m_data[j] - rightCells.m_data[i].m_params[j]) /(m_params.m_data[j]+rightCells.m_data[i].m_params[j]))  < c_maxParRelDifference[j]);
+				if(!isNeighbor)
+					break;
+
 			}
 
 			// if all the parameters are inside the range the right cell is a right neighbor.
-			if (j == m_params.m_size)
+			// viceversa this cell will be the left neighbors for rightNeighbor(i)
+			if (isNeighbor)
 			{
 				rightCells.m_data[i].m_leftNeighbors.push(m_id);
 				m_rightNeighbors.m_rightNeighbors.push(i);
@@ -47,8 +54,25 @@ public:
 		return neighborNum;
 	}
 
+
+// if there is at least one left neighbor with the same state (friend), the state has to be increased by 1.
 	__inline__
-	__device__ void increaseState() { atomicAdd(&m_CAState,1); }
+	__device__ void evolve() {
+
+
+		auto hasFriends = false;
+		for(auto i =0; i < m_leftNeighbors.m_size; ++i)
+		{
+			if(m_leftNeighbors.m_data[i].m_CAState == m_CAState)
+			{
+				hasFriends = true;
+				break;
+			}
+		}
+		__syncthreads();
+		if(hasFriends)
+			m_CAState++;
+	}
 
 	CUDAQueue<maxSize, int> m_leftNeighbors;
 	CUDAQueue<maxSize, int> m_rightNeighbors;
