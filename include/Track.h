@@ -9,6 +9,15 @@
 #define INCLUDE_TRACK_H_
 
 
+#include "CUDAQueue.h"
+template<int maxHitsNum>
+struct Track {
+
+
+	//
+//	CUDAQueue<maxHitsNum, int>
+
+};
 
 
 
