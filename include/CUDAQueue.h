@@ -28,6 +28,17 @@ struct CUDAQueue
 	};
 
 	__inline__ __device__
+	T pop_back() {
+		if(m_size > 0)
+		{
+			auto previousSize = atomicAdd (&m_size, -1);
+			return m_data[previousSize];
+		}
+
+	};
+
+
+	__inline__ __device__
 	bool insertArray(T* array, int numElements)
 	{
 		if(numElements + m_size <= maxSize && numElements < blockDim.x && threadIdx.x < numElements)

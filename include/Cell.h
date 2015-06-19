@@ -24,21 +24,21 @@ class Cell
 public:
 
 
-	template< int queueMaxSize, class T>
+	template< int queueMaxSize>
 	__inline__
-	__device__ int neighborSearch(const CUDAQueue<queueMaxSize, T>& rightCells)
+	__device__ int neighborSearch(const CUDAQueue<queueMaxSize, Cell*>& rightCells)
 	{
 		int neighborNum = 0;
 
 		for (auto i= 0; i < rightCells.m_size; ++i)
 		{
-			if(rightCells.m_data[i].m_leftHitId != m_rightHitId)
+			if(rightCells.m_data[i]->m_leftHitId != m_rightHitId)
 				continue;
 			bool isNeighbor = true;
 
 			for (auto j =0; j < m_params.m_size; ++j )
 			{
-				isNeighbor = isNeighbor & (fabs(2*(m_params.m_data[j] - rightCells.m_data[i].m_params[j]) /(m_params.m_data[j]+rightCells.m_data[i].m_params[j]))  < c_maxParRelDifference[j]);
+				isNeighbor = isNeighbor & (fabs(2*(m_params.m_data[j] - rightCells.m_data[i]->m_params[j]) /(m_params.m_data[j]+rightCells.m_data[i]->m_params[j]))  < c_maxParRelDifference[j]);
 				if(!isNeighbor)
 					break;
 
@@ -48,8 +48,8 @@ public:
 			// viceversa this cell will be the left neighbors for rightNeighbor(i)
 			if (isNeighbor)
 			{
-				rightCells.m_data[i].m_leftNeighbors.push(m_id);
-				m_rightNeighbors.m_rightNeighbors.push(i);
+				rightCells.m_data[i]->m_leftNeighbors.push(&this);
+				m_rightNeighbors.push(rightCells.m_data[i]);
 				++neighborNum;
 			}
 
@@ -64,7 +64,7 @@ public:
 		auto hasFriends = false;
 		for(auto i =0; i < m_leftNeighbors.m_size; ++i)
 		{
-			if(m_leftNeighbors.m_data[i].m_CAState == m_CAState)
+			if(m_leftNeighbors.m_data[i]->m_CAState == m_CAState)
 			{
 				hasFriends = true;
 				break;
@@ -75,51 +75,62 @@ public:
 			m_CAState++;
 	}
 
-//
-//	void GPUGeometry::trieTraverse(std::vector<int>& tmpChain, const int segment, const int zBin)
-//	{
-//		if(getNumNeighbours(segment,zBin)==0)
-//		{
-//			for(const auto element : tmpChain)
-//				std::cout << " segment : " << element ;
-//			std::cout << std::endl;
-//			nChain.index.push_back(nChain.chain.size());
-//			nChain.chain.insert(nChain.chain.end(), tmpChain.begin(), tmpChain.end());
-//		}
-//
-//		std::cout << "segment " << segment << " in zBin " << zBin << " has " <<  getNumNeighbours(segment,zBin) << " neighbours :" << std::endl;
-//
-//		for(int neighbourId =0 ; neighbourId< getNumNeighbours(segment,zBin); ++neighbourId)
-//		{
-//			std::cout << "segment " << getNeighbour( segment, zBin,neighbourId)  << std::endl;
-//
-//			tmpChain.push_back(getNeighbour( segment, zBin,neighbourId));
-//			trieTraverse(tmpChain, getNeighbour( segment, zBin,neighbourId), zBin);
-//			tmpChain.pop_back();
-//		}
-//
-//
-//	}
+
+
+	__inline__
+	__device__
+	bool areCompatible(Cell* a, Cell* root)
+	{
+		for (auto j =0; j < a->m_params.m_size; ++j )
+		{
+			bool isCompatible = (m_CAState < a->m_CAState) &&
+					(fabs(2*(a->m_params.m_data[j] - root->m_params.m_data[j]) /(a->m_params.m_data[j]+root->m_params.m_data[j]))  < c_maxParRelDifference[j]);
+			if(!isCompatible)
+				return false;
+
+		}
+		return true;
+	}
 
 	// trying to free the track building process from hardcoded layers, leaving the visit of the graph
 	// based on the neighborhood connections between cells.
 	template<int maxTracksNum, int maxHitsNum>
 	__inline__
-	__device__ void findTracks ( CUDAQueue<maxTracksNum, Track<maxHitsNum> >& foundTracks, Track<maxHitsNum>& tmpTrack, const Cell& thisCell) {
+	__device__ void findTracks ( CUDAQueue<maxTracksNum, Track<maxHitsNum> >& foundTracks, Track<maxHitsNum>& tmpTrack) {
 
 		// the building process for a track ends if:
 		// it has no right neighbor
 		// it has no compatible neighbor
 
 		// the track is then saved if the number of hits it contains is greater than a threshold
-//		if(thisCell.m_rightNeighbors.m_size == 0)
-//		{
-//			foundTracks.push()
-//		}
 
+		if(m_rightNeighbors.m_size == 0 )
+		{
+			if( tmpTrack.hits.m_size >= c_minHitsPerTrack)
+				foundTracks.push(tmpTrack);
+			else
+				return;
+		}
+		else{
+			bool hasOneCompatibleNeighbor = false;
+			for( auto i=0 ; i < m_rightNeighbors.m_size; ++i)
+			{
+				if(areCompatible(m_rightNeighbors.m_data[i], tmpTrack.Cells[0]) )
+				{
+					hasOneCompatibleNeighbor = true;
 
+					tmpTrack.Cells.push(m_rightNeighbors.m_data[i]);
+					m_rightNeighbors.m_data[i]->findTracks<maxTracksNum, maxHitsNum>(foundTracks, tmpTrack);
+					tmpTrack.Cells.pop_back();
 
+				}
 
+			}
+			if (!hasOneCompatibleNeighbor && tmpTrack.hits.m_size >= c_minHitsPerTrack)
+			{
+				foundTracks.push(tmpTrack);
+			}
+		}
 
 	}
 

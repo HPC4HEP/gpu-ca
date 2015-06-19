@@ -10,12 +10,17 @@
 
 
 #include "CUDAQueue.h"
+
+
+constexpr int c_minHitsPerTrack = 4;
+
 template<int maxHitsNum>
 struct Track {
 
-
+// track constructor should be passed the pointer of the root Cell
 	//
-//	CUDAQueue<maxHitsNum, int>
+	CUDAQueue<maxHitsNum-1, int> Cells;
+
 
 };
 
