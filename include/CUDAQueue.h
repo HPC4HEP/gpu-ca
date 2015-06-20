@@ -14,6 +14,7 @@
 template< int maxSize, class T>
 struct CUDAQueue
 {
+	CUDAQueue(int N=0 ) : m_size(N){ }
 
 	__inline__ __device__
 	bool push(const T& element) {

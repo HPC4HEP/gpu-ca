@@ -23,6 +23,7 @@ class Cell
 {
 public:
 
+    Cell(int id, int innerHitId, int outerHitId ) : m_CAState(0), m_id(id), m_innerHitId(innerHitId), m_outerHitId(outerHitId) { }
 
 	template< int queueMaxSize>
 	__inline__
@@ -32,7 +33,7 @@ public:
 
 		for (auto i= 0; i < rightCells.m_size; ++i)
 		{
-			if(rightCells.m_data[i]->m_leftHitId != m_rightHitId)
+			if(rightCells.m_data[i]->m_innerHitId != m_outerHitId)
 				continue;
 			bool isNeighbor = true;
 
@@ -118,7 +119,6 @@ public:
 				if(areCompatible(m_rightNeighbors.m_data[i], tmpTrack.Cells[0]) )
 				{
 					hasOneCompatibleNeighbor = true;
-
 					tmpTrack.Cells.push(m_rightNeighbors.m_data[i]);
 					m_rightNeighbors.m_data[i]->findTracks<maxTracksNum, maxHitsNum>(foundTracks, tmpTrack);
 					tmpTrack.Cells.pop_back();
@@ -139,8 +139,8 @@ public:
 	CUDAQueue<parNum, float> m_params;
 
 	int m_id;
-	int m_leftHitId;
-	int m_rightHitId;
+	int m_innerHitId;
+	int m_outerHitId;
 	int m_CAState;
 
 };
