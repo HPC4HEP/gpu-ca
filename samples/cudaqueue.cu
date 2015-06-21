@@ -86,6 +86,4 @@ int main ()
 	cudaFree(d_results);
 	cudaFree(d_numberOfThrees);
 	free(a);
-
-
 }
