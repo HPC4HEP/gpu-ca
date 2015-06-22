@@ -134,8 +134,8 @@ public:
 
 	}
 
-	CUDAQueue<maxSize, int> m_leftNeighbors;
-	CUDAQueue<maxSize, int> m_rightNeighbors;
+	CUDAQueue<maxSize, Cell*> m_leftNeighbors;
+	CUDAQueue<maxSize, Cell*> m_rightNeighbors;
 	CUDAQueue<parNum, float> m_params;
 
 	int m_id;
