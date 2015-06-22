@@ -78,6 +78,8 @@ public:
 
 
 
+
+//check whether a Cell and the root have compatible parameters.
 	__inline__
 	__device__
 	bool areCompatible(Cell* a, Cell* root)
