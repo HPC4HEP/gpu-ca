@@ -19,8 +19,7 @@ struct Track {
 
 // track constructor should be passed the pointer of the root Cell
 	//
-	CUDAQueue<maxHitsNum-1, int> Cells;
-
+	CUDAQueue<maxHitsNum-1, int> m_cells;
 
 };
 
