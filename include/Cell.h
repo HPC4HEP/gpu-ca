@@ -11,6 +11,21 @@
 #include "CUDAQueue.h"
 #include "Track.h"
 
+
+#ifdef __CDT_PARSER__
+#define __global__
+#define __device__
+#define __host__
+#define __shared__
+#define CUDA_KERNEL_DIM(...)
+
+#else
+#define CUDA_KERNEL_DIM(...)  <<< __VA_ARGS__ >>>
+
+#endif
+
+
+
 // Maximum relative difference (par1_A - par1_B)/par1_A for each parameters
 constexpr float c_maxParRelDifference[]{0.1, 0.1, 0.1};
 constexpr int c_numParameters = sizeof(c_maxParRelDifference)/sizeof(c_maxParRelDifference[0]);
@@ -23,23 +38,23 @@ class Cell
 {
 public:
 
-    Cell(int id, int innerHitId, int outerHitId ) : m_CAState(0), m_id(id), m_innerHitId(innerHitId), m_outerHitId(outerHitId) { }
+    Cell(int id, int innerHitId, int outerHitId, int layerId ) : m_CAState(0), m_id(id), m_innerHitId(innerHitId), m_outerHitId(outerHitId), m_cellsArray(this - id), m_layerId(layerId) { }
 
 	template< int queueMaxSize>
 	__inline__
-	__device__ int neighborSearch(const CUDAQueue<queueMaxSize, Cell*>& rightCells)
+	__device__ int neighborSearch(const CUDAQueue<queueMaxSize, int>& rightCells)
 	{
 		int neighborNum = 0;
 
 		for (auto i= 0; i < rightCells.m_size; ++i)
 		{
-			if(rightCells.m_data[i]->m_innerHitId != m_outerHitId)
+			if(m_cellsArray[rightCells.m_data[i]]->m_innerHitId != m_outerHitId)
 				continue;
 			bool isNeighbor = true;
 
 			for (auto j =0; j < m_params.m_size; ++j )
 			{
-				isNeighbor = isNeighbor & (fabs(2*(m_params.m_data[j] - rightCells.m_data[i]->m_params[j]) /(m_params.m_data[j]+rightCells.m_data[i]->m_params[j]))  < c_maxParRelDifference[j]);
+				isNeighbor = isNeighbor & (fabs(2*(m_params.m_data[j] - m_cellsArray[rightCells.m_data[i]]->m_params[j]) /(m_params.m_data[j]+m_cellsArray[rightCells.m_data[i]]->m_params[j]))  < c_maxParRelDifference[j]);
 				if(!isNeighbor)
 					break;
 
@@ -49,8 +64,8 @@ public:
 			// viceversa this cell will be the left neighbors for rightNeighbor(i)
 			if (isNeighbor)
 			{
-				rightCells.m_data[i]->m_leftNeighbors.push(&this);
-				m_rightNeighbors.push(rightCells.m_data[i]);
+				m_cellsArray[rightCells.m_data[i]]->m_leftNeighbors.push(m_id);
+				m_rightNeighbors.push(m_cellsArray[rightCells.m_data[i]].m_id);
 				++neighborNum;
 			}
 
@@ -65,7 +80,7 @@ public:
 		auto hasFriends = false;
 		for(auto i =0; i < m_leftNeighbors.m_size; ++i)
 		{
-			if(m_leftNeighbors.m_data[i]->m_CAState == m_CAState)
+			if(m_cellsArray[m_leftNeighbors.m_data[i]]->m_CAState == m_CAState)
 			{
 				hasFriends = true;
 				break;
@@ -109,7 +124,7 @@ public:
 
 		if(m_rightNeighbors.m_size == 0 )
 		{
-			if( tmpTrack.hits.m_size >= c_minHitsPerTrack)
+			if( tmpTrack.m_cells.m_size >= c_minHitsPerTrack-1)
 				foundTracks.push(tmpTrack);
 			else
 				return;
@@ -118,17 +133,17 @@ public:
 			bool hasOneCompatibleNeighbor = false;
 			for( auto i=0 ; i < m_rightNeighbors.m_size; ++i)
 			{
-				if(areCompatible(m_rightNeighbors.m_data[i], tmpTrack.Cells[0]) )
+				if(areCompatible(&m_cellsArray[m_rightNeighbors.m_data[i]], &m_cellsArray[tmpTrack.m_cells[0]]) )
 				{
 					hasOneCompatibleNeighbor = true;
-					tmpTrack.Cells.push(m_rightNeighbors.m_data[i]);
-					m_rightNeighbors.m_data[i]->findTracks<maxTracksNum, maxHitsNum>(foundTracks, tmpTrack);
-					tmpTrack.Cells.pop_back();
+					tmpTrack.m_cells.push(m_rightNeighbors.m_data[i]);
+					m_cellsArray[m_rightNeighbors.m_data[i]]->findTracks<maxTracksNum, maxHitsNum>(foundTracks, tmpTrack);
+					tmpTrack.m_cells.pop_back();
 
 				}
 
 			}
-			if (!hasOneCompatibleNeighbor && tmpTrack.hits.m_size >= c_minHitsPerTrack)
+			if (!hasOneCompatibleNeighbor && tmpTrack.m_cells.m_size >= c_minHitsPerTrack-1)
 			{
 				foundTracks.push(tmpTrack);
 			}
@@ -136,14 +151,17 @@ public:
 
 	}
 
-	CUDAQueue<maxSize, Cell*> m_leftNeighbors;
-	CUDAQueue<maxSize, Cell*> m_rightNeighbors;
+	CUDAQueue<maxSize, int>  m_leftNeighbors;
+	CUDAQueue<maxSize, int>  m_rightNeighbors;
 	CUDAQueue<parNum, float> m_params;
 
 	int m_id;
+	int m_layerId;
 	int m_innerHitId;
 	int m_outerHitId;
 	int m_CAState;
+	Cell * m_cellsArray;
+
 
 };
 
