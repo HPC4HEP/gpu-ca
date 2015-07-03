@@ -26,12 +26,13 @@ __global__ void singleBlockCA (Cell<20, c_numParameters>** arrayOfLayers, int nu
 int main()
 {
 	constexpr auto numLayers = 5;
-	constexpr auto numHits = 100;
+	constexpr auto numHitsPerLayer = 100;
 
 	srand (time(NULL));
 	std::pair<float, float> range_eta(0.1, 0.3);
 	std::pair<float, float> range_phi(0.5, 0.6);
 
+	std::vector<SimpleHit> hitsVector(numLayers*numHitsPerLayer);
 
 
 
@@ -40,10 +41,11 @@ int main()
 		float tmp_eta = range_eta.first + (range_eta.second - range_eta.first)*(static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
 		float tmp_phi = range_phi.first + (range_phi.second - range_phi.first)*(static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
 
+
+
 	}
 
 
-	std::vector<SimpleHit> hitsVector(numHits);
 
 
 
