@@ -10,19 +10,8 @@
 
 #include "CUDAQueue.h"
 #include "Track.h"
+#include "eclipse_parser.h"
 
-
-#ifdef __CDT_PARSER__
-#define __global__
-#define __device__
-#define __host__
-#define __shared__
-#define CUDA_KERNEL_DIM(...)
-
-#else
-#define CUDA_KERNEL_DIM(...)  <<< __VA_ARGS__ >>>
-
-#endif
 
 
 

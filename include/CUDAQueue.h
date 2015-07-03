@@ -7,6 +7,10 @@
 
 #ifndef INCLUDE_CUDAQUEUE_H_
 #define INCLUDE_CUDAQUEUE_H_
+#include "eclipse_parser.h"
+
+#include <cuda_runtime.h>
+
 
 // CUDAQueue is a single-block queue.
 // One may want to use it as a __shared__ struct, and have multiple threads

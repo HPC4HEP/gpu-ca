@@ -8,6 +8,7 @@
 #ifndef INCLUDE_TRACK_H_
 #define INCLUDE_TRACK_H_
 
+#include "eclipse_parser.h"
 
 #include "CUDAQueue.h"
 
@@ -20,9 +21,9 @@ struct Track {
 // track constructor should be passed the pointer of the root Cell
 	//
 	CUDAQueue<maxHitsNum-1, int> m_cells;
-
+	float m_trkParameters[5];
 };
 
-
+//
 
 #endif /* INCLUDE_TRACK_H_ */
