@@ -27,7 +27,7 @@ class Cell
 {
 public:
 
-    Cell(int id, int innerHitId, int outerHitId, int layerId ) : m_CAState(0), m_id(id), m_innerHitId(innerHitId), m_outerHitId(outerHitId), m_cellsArray(this - id), m_layerId(layerId) { }
+    Cell(int innerHitId, int outerHitId, int layerId, Cell* cellsArray) : m_CAState(0), m_id(this - cellsArray), m_innerHitId(innerHitId), m_outerHitId(outerHitId), m_cellsArray(cellsArray), m_layerId(layerId) { }
 
 	template< int queueMaxSize>
 	__inline__
