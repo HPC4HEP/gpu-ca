@@ -65,7 +65,7 @@ __device__ void makeCells (const SimpleHit* __restrict__ hits, CUDAQueue<maxCell
 
 
 
-__global__ void singleBlockCA (Cell<20, c_numParameters>** arrayOfLayers, int numberOfLayers, int* numberOfCellsPerLayer )
+__global__ void singleBlockCA (const PacketHeader* __restrict__ packet )
 {
 
 
@@ -135,21 +135,15 @@ int main()
 
 		}
 	}
+	cudaMemcpyAsync(device_Packet, host_Packet, packetSize, cudaMemcpyHostToDevice, 0);
+
+	singleBlockCA
+
+
+
 
 
 	cudaFreeHost(host_Packet);
 	cudaFree(device_Packet);
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
