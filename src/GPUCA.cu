@@ -106,22 +106,32 @@ int main()
 
 	int* host_Packet;
 	int* device_Packet;
-	PacketHeader<6> host_packetHeader;
-	auto packetSize = sizeof(host_packetHeader) + hitsVector.size()*sizeof(SimpleHit);
+	auto packetSize = sizeof(PacketHeader<c_maxNumberOfLayersInPacket>) + hitsVector.size()*sizeof(SimpleHit);
 	cudaMallocHost((void**)&host_Packet, packetSize);
 	cudaMalloc((void**)&device_Packet, packetSize);
+	PacketHeader<c_maxNumberOfLayersInPacket>* host_packetHeader = (PacketHeader<c_maxNumberOfLayersInPacket>*)(host_Packet);
+	SimpleHit* host_packetPayload = (SimpleHit*)((char*)host_Packet + sizeof(PacketHeader<c_maxNumberOfLayersInPacket>));
 
-	SimpleHit* host_packetPayload = (SimpleHit*)((char*)host_Packet + sizeof(host_packetHeader));
 
+	//initialization of the Packet to send to the GPU
+	host_packetHeader->size = packetSize;
+	host_packetHeader->numLayers = numLayers;
+	for(auto i = 0; i<numLayers; ++i)
+		host_packetHeader->firstHitIdOnLayer[i] = i*numHitsPerLayer;
 	memcpy(host_packetPayload, hitsVector.data(), hitsVector.size()*sizeof(SimpleHit));
+
+	// end of the initialization
+
 
 
 	for (auto i = 0; i< numLayers; ++i)
 	{
 		for(auto j =0; j<numHitsPerLayer; ++j)
 		{
-			std::cout << i*numHitsPerLayer + j << " "<<  hitsVector[i*numHitsPerLayer + j].eta << " " << hitsVector[i*numHitsPerLayer + j].phi << " " << hitsVector[i*numHitsPerLayer + j].layerId << std::endl;
-			std::cout << i*numHitsPerLayer + j<< " "<<  host_packetPayload[i*numHitsPerLayer + j].eta << " " << host_packetPayload[i*numHitsPerLayer + j].phi << " " << host_packetPayload[i*numHitsPerLayer + j].layerId << std::endl;
+			assert(hitsVector[i*numHitsPerLayer + j].eta == host_packetPayload[i*numHitsPerLayer + j].eta);
+			assert(hitsVector[i*numHitsPerLayer + j].phi == host_packetPayload[i*numHitsPerLayer + j].phi);
+			assert(hitsVector[i*numHitsPerLayer + j].layerId == host_packetPayload[i*numHitsPerLayer + j].layerId);
+
 		}
 	}
 

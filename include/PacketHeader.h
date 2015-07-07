@@ -14,7 +14,7 @@ struct PacketHeader {
 
 	int size;      // size in bytes
 	int numLayers; // number of layers used. Cannot be larger than maxNumberOfLayersInPacket
-	int layer[maxLayersInPacket]; // bytes from the beginning of the payload where the hits from each layer are stored
+	int firstHitIdOnLayer[maxLayersInPacket]; // bytes from the beginning of the payload where the hits from each layer are stored
 
 
 
