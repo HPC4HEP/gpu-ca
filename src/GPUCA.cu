@@ -106,7 +106,8 @@ int main()
 
 	int* host_Packet;
 	int* device_Packet;
-	auto packetSize = sizeof(PacketHeader<6>) + hitsVector.size()*sizeof(SimpleHit);
+	PacketHeader<6> host_packetHeader;
+	auto packetSize = sizeof(host_packetHeader) + hitsVector.size()*sizeof(SimpleHit);
 	cudaMallocHost((void**)&host_Packet, packetSize);
 	cudaMalloc((void**)&device_Packet, packetSize);
 
