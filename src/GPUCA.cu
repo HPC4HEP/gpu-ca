@@ -11,6 +11,7 @@
 
 #include "Cell.h"
 #include "CUDAQueue.h"
+#include "SimpleHit.h"
 #include <iostream>
 #include "eclipse_parser.h"
 
