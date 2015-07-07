@@ -114,10 +114,20 @@ int main()
 	memcpy(host_packetPayload, hitsVector.data(), hitsVector.size()*sizeof(SimpleHit));
 
 
+	for (auto i = 0; i< numLayers; ++i)
+	{
+		for(auto j =0; j<numHitsPerLayer; ++j)
+		{
+			std::cout << i*numHitsPerLayer + j << " "<<  hitsVector[i*numHitsPerLayer + j].eta << " " << hitsVector[i*numHitsPerLayer + j].phi << " " << hitsVector[i*numHitsPerLayer + j].layerId << std::endl;
+			std::cout << i*numHitsPerLayer + j<< " "<<  host_packetPayload[i*numHitsPerLayer + j].eta << " " << host_packetPayload[i*numHitsPerLayer + j].phi << " " << host_packetPayload[i*numHitsPerLayer + j].layerId << std::endl;
+		}
+	}
 
 
 	cudaFreeHost(host_Packet);
 	cudaFree(device_Packet);
+
+
 
 
 
