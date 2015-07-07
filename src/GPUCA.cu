@@ -19,7 +19,6 @@
 constexpr float c_maxDoubletRelDifference[]{0.1, 0.1};
 constexpr int c_doubletParametersNum = sizeof(c_maxDoubletRelDifference)/sizeof(c_maxDoubletRelDifference[0]);
 constexpr int maxCellsNumPerLayer  = 256;
-constexpr int max
 
 __inline__
 __device__
