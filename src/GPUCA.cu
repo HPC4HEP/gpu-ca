@@ -19,8 +19,8 @@
 // Maximum relative difference (par1_A - par1_B)/par1_A for each parameters
 constexpr float c_maxDoubletRelDifference[]{0.1, 0.1};
 constexpr int c_doubletParametersNum = sizeof(c_maxDoubletRelDifference)/sizeof(c_maxDoubletRelDifference[0]);
-constexpr int maxCellsNumPerLayer  = 256;
-constexpr int maxNeighborsNumPerCell = 32;
+constexpr int c_maxCellsNumPerLayer  = 256;
+constexpr int c_maxNeighborsNumPerCell = 32;
 
 __inline__
 __device__
@@ -37,7 +37,7 @@ bool isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const in
 
 // this will become a global kernel in the offline CA
 template< int maxCellsNum, int warpSize >
-__device__ void makeCells (const SimpleHit* __restrict__ hits, CUDAQueue<maxCellsNum,Cell<maxNeighborsNumPerCell, c_doubletParametersNum> >& outputCells,
+__device__ void makeCells (const SimpleHit* __restrict__ hits, CUDAQueue<maxCellsNum,Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum> >& outputCells,
 			int hitId, int layerId, int firstHitIdOnNextLayer, int numHitsOnNextLayer, int threadId )
 {
 	auto nSteps = (numHitsOnNextLayer+warpSize-1)/warpSize;
@@ -49,7 +49,7 @@ __device__ void makeCells (const SimpleHit* __restrict__ hits, CUDAQueue<maxCell
 		{
 			if(isADoublet(hits, hitId, targetHitId))
 			{
-				auto cellId = outputCells.push(Cell(hitId, targetHitId, layerId, outputCells.m_data));
+				auto cellId = outputCells.push(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>(hitId, targetHitId, layerId, outputCells.m_data));
 				if(cellId == -1)
 					break;
 
