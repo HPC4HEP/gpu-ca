@@ -12,6 +12,7 @@
 #include "Cell.h"
 #include "CUDAQueue.h"
 #include "SimpleHit.h"
+#include "PacketHeader.h"
 #include <iostream>
 #include "eclipse_parser.h"
 
