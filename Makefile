@@ -20,11 +20,11 @@ OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 $(ODIR)/%.o: $(SRCDIR)/%.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 $(ODIR)/%.o: $(SRCDIR)/%.cu $(DEPS)
-	$(NVCC) -c -o $@ $< $(CUDAFLAGS) $(CFLAGS)
+	$(NVCC) –default-stream per-thread -c -o $@ $< $(CUDAFLAGS) $(CFLAGS)
 
 
 GPUCA: $(OBJ)
-	$(NVCC) -o $(OUTPUTDIR)/$@ $^ $(CFLAGS) $(LIBS)
+	$(NVCC) –default-stream per-thread -o $(OUTPUTDIR)/$@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean
 
