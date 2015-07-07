@@ -15,6 +15,7 @@
 #include "PacketHeader.h"
 #include <iostream>
 #include "eclipse_parser.h"
+#include <assert.h>     /* assert */
 
 
 // Maximum relative difference (par1_A - par1_B)/par1_A for each parameters
