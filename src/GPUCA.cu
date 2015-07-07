@@ -111,7 +111,7 @@ int main()
 	cudaMallocHost((void**)&host_Packet, packetSize);
 	cudaMalloc((void**)&device_Packet, packetSize);
 
-	SimpleHit* host_packetPayload = (SimpleHit*)((char*)host_Packet + sizeof(PacketHeader));
+	SimpleHit* host_packetPayload = (SimpleHit*)((char*)host_Packet + sizeof(host_packetHeader));
 
 	memcpy(host_packetPayload, hitsVector.data(), hitsVector.size()*sizeof(SimpleHit));
 
