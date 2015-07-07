@@ -18,11 +18,12 @@
 // Maximum relative difference (par1_A - par1_B)/par1_A for each parameters
 constexpr float c_maxDoubletRelDifference[]{0.1, 0.1};
 constexpr int c_doubletParametersNum = sizeof(c_maxDoubletRelDifference)/sizeof(c_maxDoubletRelDifference[0]);
-
+constexpr int maxCellsNumPerLayer  = 256;
+constexpr int max
 
 __inline__
 __device__
-isADoublet(SimpleHit* hits, const int idOrigin, const int idTarget)
+isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const int idTarget)
 {
 	float relEtaDiff = 2*fabs((hits[idOrigin].eta - hits[idTarget].eta)/(hits[idOrigin].eta+hits[idTarget].eta));
 	if(relEtaDiff > c_maxDoubletRelDifference[0]) return false;
@@ -30,30 +31,32 @@ isADoublet(SimpleHit* hits, const int idOrigin, const int idTarget)
 	if(relPhiDiff > c_maxDoubletRelDifference[1]) return false;
 
 	return true;
-
-
-
 }
 
-template< int maxCellsNum, int maxCellsPerHit >
-__device__ void makeCells (SimpleHit* hits, CUDAQueue<maxCellsNum,Cell>& outputCells, CUDAQueue<maxCellsPerHit*maxCellsNum, int>& nMap, int hitId, int layerId, int firstHitOnNextLayerId, int length )
+
+// this will become a global kernel in the offline CA
+template< int maxCellsNum, int warpSize >
+__device__ void makeCells (const SimpleHit* __restrict__ hits, CUDAQueue<maxCellsNum,Cell>& outputCells,
+			int hitId, int layerId, int firstHitIdOnNextLayer, int numHitsOnNextLayer, int threadId )
 {
-	for (auto i = 0; i < length; ++i)
+	auto nSteps = (numHitsOnNextLayer+warpSize-1)/warpSize;
+
+	for (auto i = 0; i < nSteps; ++i)
 	{
-		if(isADoublet(hits, hitId, firstHitOnNextLayerId + i))
+		auto targetHitId = i*warpSize + threadId;
+		if(targetHitId < numHitsOnNextLayer)
 		{
-			auto cellId = outputCells.push(Cell(hitId, firstHitOnNextLayerId + i, layerId, outputCells.m_data));
-			if(cellId == -1)
-				break;
+			if(isADoublet(hits, hitId, targetHitId))
+			{
+				auto cellId = outputCells.push(Cell(hitId, targetHitId, layerId, outputCells.m_data));
+				if(cellId == -1)
+					break;
 
-
+			}
 
 		}
 
-
 	}
-
-
 
 }
 
@@ -90,11 +93,9 @@ int main()
 			hitsVector[i*numHitsPerLayer + j].phi = range_phi.first + (range_phi.second - range_phi.first)*(static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
 			hitsVector[i*numHitsPerLayer + j].layerId = i;
 		}
-
-
-
-
 	}
+
+
 
 
 
