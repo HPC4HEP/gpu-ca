@@ -8,7 +8,7 @@
 #include <cuda.h>
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
-
+#include <vector>
 #include "Cell.h"
 #include "CUDAQueue.h"
 #include "SimpleHit.h"
@@ -20,10 +20,11 @@
 constexpr float c_maxDoubletRelDifference[]{0.1, 0.1};
 constexpr int c_doubletParametersNum = sizeof(c_maxDoubletRelDifference)/sizeof(c_maxDoubletRelDifference[0]);
 constexpr int maxCellsNumPerLayer  = 256;
+constexpr int maxNeighborsNumPerCell = 32;
 
 __inline__
 __device__
-isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const int idTarget)
+bool isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const int idTarget)
 {
 	float relEtaDiff = 2*fabs((hits[idOrigin].eta - hits[idTarget].eta)/(hits[idOrigin].eta+hits[idTarget].eta));
 	if(relEtaDiff > c_maxDoubletRelDifference[0]) return false;
@@ -36,7 +37,7 @@ isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const int idT
 
 // this will become a global kernel in the offline CA
 template< int maxCellsNum, int warpSize >
-__device__ void makeCells (const SimpleHit* __restrict__ hits, CUDAQueue<maxCellsNum,Cell>& outputCells,
+__device__ void makeCells (const SimpleHit* __restrict__ hits, CUDAQueue<maxCellsNum,Cell<maxNeighborsNumPerCell, c_doubletParametersNum> >& outputCells,
 			int hitId, int layerId, int firstHitIdOnNextLayer, int numHitsOnNextLayer, int threadId )
 {
 	auto nSteps = (numHitsOnNextLayer+warpSize-1)/warpSize;
