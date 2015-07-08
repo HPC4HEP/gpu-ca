@@ -59,7 +59,7 @@ bool isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const in
 // this will become a global kernel in the offline CA
 template< int maxNumLayersInPacket,int maxCellsNum, int warpSize >
 __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ hits,
-		CUDAQueue<maxCellsNum,Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum> >& outputCells,int hitId )
+		CUDAQueue<maxCellsNum, Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum> >& outputCells, int hitId )
 {
 	auto threadInWarpIdx = threadIdx.x%32;
 	auto layerId = hits[hitId].layerId;
@@ -152,7 +152,7 @@ int main()
 	auto packetSize = sizeof(PacketHeader<c_maxNumberOfLayersInPacket>) + hitsVector.size()*sizeof(SimpleHit);
 	cudaMallocHost((void**)&host_packetHeader, packetSize);
 	cudaMalloc((void**)&device_Packet, packetSize);
-	SimpleHit* host_packetPayload = (SimpleHit*)((char*)host_Packet + sizeof(PacketHeader<c_maxNumberOfLayersInPacket>));
+	SimpleHit* host_packetPayload = (SimpleHit*)((char*)host_packetHeader + sizeof(PacketHeader<c_maxNumberOfLayersInPacket>));
 
 
 	//initialization of the Packet to send to the GPU
