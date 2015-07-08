@@ -19,7 +19,7 @@
 
 
 // Maximum relative difference (par1_A - par1_B)/par1_A for each parameters
-__device__ constexpr float c_maxDoubletRelDifference[]{0.1, 0.1};
+constexpr float c_maxDoubletRelDifference[]{0.1, 0.1};
 constexpr int c_doubletParametersNum = sizeof(c_maxDoubletRelDifference)/sizeof(c_maxDoubletRelDifference[0]);
 constexpr int c_maxCellsNumPerLayer  = 256;
 constexpr int c_maxNeighborsNumPerCell = 32;
@@ -47,10 +47,11 @@ __inline__
 __device__
 bool isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const int idTarget)
 {
+	float maxDoubletRelDifference[]{0.1, 0.1};
 	float relEtaDiff = 2*fabs((hits[idOrigin].eta - hits[idTarget].eta)/(hits[idOrigin].eta+hits[idTarget].eta));
-	if(relEtaDiff > c_maxDoubletRelDifference[0]) return false;
+	if(relEtaDiff > maxDoubletRelDifference[0]) return false;
 	float relPhiDiff = 2*fabs((hits[idOrigin].phi - hits[idTarget].phi)/(hits[idOrigin].phi+hits[idTarget].phi));
-	if(relPhiDiff > c_maxDoubletRelDifference[1]) return false;
+	if(relPhiDiff > maxDoubletRelDifference[1]) return false;
 
 	return true;
 }
