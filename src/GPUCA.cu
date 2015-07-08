@@ -21,8 +21,8 @@
 // Maximum relative difference (par1_A - par1_B)/par1_A for each parameters
 constexpr float c_maxDoubletRelDifference[]{0.1, 0.1};
 constexpr int c_doubletParametersNum = sizeof(c_maxDoubletRelDifference)/sizeof(c_maxDoubletRelDifference[0]);
-constexpr int c_maxCellsNumPerLayer  = 256;
-constexpr int c_maxNeighborsNumPerCell = 32;
+constexpr int c_maxCellsNumPerLayer  = 128;
+constexpr int c_maxNeighborsNumPerCell = 8;
 
 template <int maxNumLayersInPacket>
 __inline__
