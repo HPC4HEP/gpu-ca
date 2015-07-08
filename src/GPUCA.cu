@@ -86,12 +86,12 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 }
 
 
-template <int maxNumLayersInPacket, int maxCellsNum, int maxNeighborsNumPerCell, int doubletParametersNum>
+template <int maxNumLayersInPacket, int maxCellsNum, int maxNeighborsNumPerCell, int doubletParametersNum, int warpSize>
 __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ packetPayload )
 {
-	auto warpIdx = (blockDim.x*blockIdx.x + threadIdx.x)/32;
-	auto warpNum = blockDim.x/32;
-	auto threadInWarpIdx = threadIdx.x%32;
+	auto warpIdx = (blockDim.x*blockIdx.x + threadIdx.x)/warpSize;
+	auto warpNum = blockDim.x/warpSize;
+	auto threadInWarpIdx = threadIdx.x%warpSize;
 	__shared__ CUDAQueue<maxCellsNum, Cell<maxNeighborsNumPerCell, doubletParametersNum> > foundCells;
 
 	//We will now create cells with the inner hit on each layer except the last one, which does not have a layer next to it.
@@ -105,7 +105,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		auto hitIdx = warpIdx + warpNum*i;
 		if(hitIdx < numberOfOriginHitsInInnerLayers)
 		{
-			makeCells (packetHeader, packetPayload, foundCells, hitIdx);
+			makeCells< maxNumLayersInPacket, maxCellsNum, warpSize > (packetHeader, packetPayload, foundCells, hitIdx);
 		}
 
 
@@ -176,7 +176,7 @@ int main()
 
 		}
 	}
-	cudaMemcpyAsync(device_Packet, host_Packet, packetSize, cudaMemcpyHostToDevice, 0);
+	cudaMemcpyAsync(device_Packet, host_packetHeader, packetSize, cudaMemcpyHostToDevice, 0);
 
 	singleBlockCA<c_maxNumberOfLayersInPacket,  c_maxCellsNumPerLayer*c_maxNumberOfLayersInPacket,c_maxNeighborsNumPerCell , c_doubletParametersNum><<<1,2048>>>(
 			device_Packet, (SimpleHit*)((char*)device_Packet+sizeof(host_packetHeader)));
