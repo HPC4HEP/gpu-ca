@@ -157,7 +157,7 @@ int main()
 
 
 	//initialization of the Packet to send to the GPU
-	host_packetHeader->size = packetSize;
+	host_packetHeader->size = hitsVector.size();
 	host_packetHeader->numLayers = numLayers;
 	for(auto i = 0; i<numLayers; ++i)
 		host_packetHeader->firstHitIdOnLayer[i] = i*numHitsPerLayer;
@@ -179,7 +179,8 @@ int main()
 	}
 	cudaMemcpyAsync(device_Packet, host_Packet, packetSize, cudaMemcpyHostToDevice, 0);
 
-//	singleBlockCA<<<>>>
+	singleBlockCA<c_maxNumberOfLayersInPacket,  c_maxCellsNumPerLayer*c_maxNumberOfLayersInPacket,c_maxNeighborsNumPerCell , c_doubletParametersNum><<<1,2048>>>(
+			device_Packet, (char*)device_Packet+sizeof(host_packetHeader));
 
 
 
