@@ -68,8 +68,8 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 	auto nSteps = (numHitsOnNextLayer+warpSize-1)/warpSize;
 	for (auto i = 0; i < nSteps; ++i)
 	{
-		auto targetHitId = i*warpSize + threadInWarpIdx;
-		if(targetHitId < numHitsOnNextLayer)
+		auto targetHitId = firstHitIdOnNextLayer + i*warpSize + threadInWarpIdx;
+		if(targetHitId-firstHitIdOnNextLayer < numHitsOnNextLayer)
 		{
 			if(isADoublet(hits, hitId, targetHitId))
 			{
