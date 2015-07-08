@@ -178,14 +178,14 @@ int main()
 	}
 	cudaMemcpyAsync(device_Packet, host_packetHeader, packetSize, cudaMemcpyHostToDevice, 0);
 
-	singleBlockCA<c_maxNumberOfLayersInPacket,  c_maxCellsNumPerLayer*c_maxNumberOfLayersInPacket,c_maxNeighborsNumPerCell , c_doubletParametersNum><<<1,2048>>>(
+	singleBlockCA<c_maxNumberOfLayersInPacket,  c_maxCellsNumPerLayer*c_maxNumberOfLayersInPacket,c_maxNeighborsNumPerCell , c_doubletParametersNum, 32><<<1,2048>>>(
 			device_Packet, (SimpleHit*)((char*)device_Packet+sizeof(host_packetHeader)));
 
 
 
 
 
-	cudaFreeHost(host_Packet);
+	cudaFreeHost(host_packetHeader);
 	cudaFree(device_Packet);
 
 }
