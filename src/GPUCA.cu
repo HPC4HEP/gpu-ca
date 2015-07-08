@@ -21,7 +21,7 @@
 // Maximum relative difference (par1_A - par1_B)/par1_A for each parameters
 constexpr float c_maxDoubletRelDifference[]{0.1, 0.1};
 constexpr int c_doubletParametersNum = sizeof(c_maxDoubletRelDifference)/sizeof(c_maxDoubletRelDifference[0]);
-constexpr int c_maxCellsNumPerLayer  = 128;
+constexpr int c_maxCellsNumPerLayer  = 64;
 constexpr int c_maxNeighborsNumPerCell = 8;
 
 template <int maxNumLayersInPacket>
@@ -179,7 +179,7 @@ int main()
 	}
 	cudaMemcpyAsync(device_Packet, host_packetHeader, packetSize, cudaMemcpyHostToDevice, 0);
 
-	singleBlockCA<c_maxNumberOfLayersInPacket,  c_maxCellsNumPerLayer*c_maxNumberOfLayersInPacket,c_maxNeighborsNumPerCell , c_doubletParametersNum, 32><<<1,2048>>>(
+	singleBlockCA<c_maxNumberOfLayersInPacket,  c_maxCellsNumPerLayer*numLayers,c_maxNeighborsNumPerCell, c_doubletParametersNum, 32><<<1,2048>>>(
 			device_Packet, (SimpleHit*)((char*)device_Packet+sizeof(host_packetHeader)));
 
 
