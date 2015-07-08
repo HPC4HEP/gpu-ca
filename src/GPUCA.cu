@@ -147,12 +147,11 @@ int main()
 	}
 
 
-	int* host_Packet;
-	int* device_Packet;
+	PacketHeader<c_maxNumberOfLayersInPacket>* host_packetHeader;
+	PacketHeader<c_maxNumberOfLayersInPacket>* device_Packet;
 	auto packetSize = sizeof(PacketHeader<c_maxNumberOfLayersInPacket>) + hitsVector.size()*sizeof(SimpleHit);
-	cudaMallocHost((void**)&host_Packet, packetSize);
+	cudaMallocHost((void**)&host_packetHeader, packetSize);
 	cudaMalloc((void**)&device_Packet, packetSize);
-	PacketHeader<c_maxNumberOfLayersInPacket>* host_packetHeader = (PacketHeader<c_maxNumberOfLayersInPacket>*)(host_Packet);
 	SimpleHit* host_packetPayload = (SimpleHit*)((char*)host_Packet + sizeof(PacketHeader<c_maxNumberOfLayersInPacket>));
 
 
