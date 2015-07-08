@@ -92,7 +92,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	auto warpIdx = (blockDim.x*blockIdx.x + threadIdx.x)/32;
 	auto warpNum = blockDim.x/32;
 	auto threadInWarpIdx = threadIdx.x%32;
-	__shared__ CUDAQueue<maxCellsNum, Cell<maxNeighborsNumPerCell, doubletParametersNum> >& foundCells;
+	__shared__ CUDAQueue<maxCellsNum, Cell<maxNeighborsNumPerCell, doubletParametersNum> >& foundCells();
 
 	//We will now create cells with the inner hit on each layer except the last one, which does not have a layer next to it.
 	auto numberOfOriginHitsInInnerLayers = packetHeader->firstHitIdOnLayer[packetHeader->numLayers-1];
