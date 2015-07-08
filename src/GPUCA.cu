@@ -27,7 +27,7 @@ constexpr int c_maxNeighborsNumPerCell = 32;
 template <int maxNumLayersInPacket>
 __inline__
 __device__
-int getNumHitsInLayer(const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const int layer ) const
+int getNumHitsInLayer(const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const int layer )
 {
 	int numHitsInLayer = 0;
 	if(layer < packetHeader->numLayers)
@@ -179,7 +179,7 @@ int main()
 	}
 	cudaMemcpyAsync(device_Packet, host_Packet, packetSize, cudaMemcpyHostToDevice, 0);
 
-	singleBlockCA<<<>>>
+//	singleBlockCA<<<>>>
 
 
 
