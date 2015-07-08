@@ -12,9 +12,9 @@ const constexpr int c_maxNumberOfLayersInPacket = 6;
 template <int maxLayersInPacket>
 struct PacketHeader {
 
-	int size;      // size in bytes
+	int size;      // size in Hits
 	int numLayers; // number of layers used. Cannot be larger than maxNumberOfLayersInPacket
-	int firstHitIdOnLayer[maxLayersInPacket]; // bytes from the beginning of the payload where the hits from each layer are stored
+	int firstHitIdOnLayer[maxLayersInPacket]; // number of Hits from the beginning of the payload where the hits from each layer are stored
 
 
 

@@ -24,6 +24,25 @@ constexpr int c_doubletParametersNum = sizeof(c_maxDoubletRelDifference)/sizeof(
 constexpr int c_maxCellsNumPerLayer  = 256;
 constexpr int c_maxNeighborsNumPerCell = 32;
 
+template <int maxNumLayersInPacket>
+__inline__
+__device__
+int getNumHitsInLayer(const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const int layer ) const
+{
+	int numHitsInLayer = 0;
+	if(layer < packetHeader->numLayers)
+	{
+		numHitsInLayer = (layer == packetHeader->numLayers -1) ?
+				packetHeader->size - packetHeader->firstHitIdOnLayer[layer]:
+				packetHeader->firstHitIdOnLayer[layer+1] - packetHeader->firstHitIdOnLayer[layer];
+	}
+
+	return numHitsInLayer;
+
+
+}
+
+
 __inline__
 __device__
 bool isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const int idTarget)
@@ -38,15 +57,18 @@ bool isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const in
 
 
 // this will become a global kernel in the offline CA
-template< int maxCellsNum, int warpSize >
-__device__ void makeCells (const SimpleHit* __restrict__ hits, CUDAQueue<maxCellsNum,Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum> >& outputCells,
-			int hitId, int layerId, int firstHitIdOnNextLayer, int numHitsOnNextLayer, int threadId )
+template< int maxNumLayersInPacket,int maxCellsNum, int warpSize >
+__device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ hits,
+		CUDAQueue<maxCellsNum,Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum> >& outputCells,int hitId )
 {
+	auto threadInWarpIdx = threadIdx.x%32;
+	auto layerId = hits[hitId].layerId;
+	auto firstHitIdOnNextLayer = packetHeader->firstHitIdOnLayer[layerId+1];
+	auto numHitsOnNextLayer = getNumHitsInLayer(packetHeader, layerId+1 );
 	auto nSteps = (numHitsOnNextLayer+warpSize-1)/warpSize;
-
 	for (auto i = 0; i < nSteps; ++i)
 	{
-		auto targetHitId = i*warpSize + threadId;
+		auto targetHitId = i*warpSize + threadInWarpIdx;
 		if(targetHitId < numHitsOnNextLayer)
 		{
 			if(isADoublet(hits, hitId, targetHitId))
@@ -64,11 +86,31 @@ __device__ void makeCells (const SimpleHit* __restrict__ hits, CUDAQueue<maxCell
 }
 
 
-
-__global__ void singleBlockCA (const PacketHeader* __restrict__ packet )
+template <int maxNumLayersInPacket, int maxCellsNum, int maxNeighborsNumPerCell, int doubletParametersNum>
+__global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ packetPayload )
 {
+	auto warpIdx = (blockDim.x*blockIdx.x + threadIdx.x)/32;
+	auto warpNum = blockDim.x/32;
+	auto threadInWarpIdx = threadIdx.x%32;
+	__shared__ CUDAQueue<maxCellsNum, Cell<maxNeighborsNumPerCell, doubletParametersNum> >& foundCells;
+
+	//We will now create cells with the inner hit on each layer except the last one, which does not have a layer next to it.
+	auto numberOfOriginHitsInInnerLayers = packetHeader->firstHitIdOnLayer[packetHeader->numLayers-1];
+
+	auto nSteps = (numberOfOriginHitsInInnerLayers+warpNum-1)/warpNum;
 
 
+	for (auto i = 0; i < nSteps; ++i)
+	{
+		auto hitIdx = warpIdx + warpNum*i;
+		if(hitIdx < numberOfOriginHitsInInnerLayers)
+		{
+			makeCells (packetHeader, packetPayload, foundCells, hitIdx);
+		}
+
+
+	}
+	__syncthreads();
 
 
 
@@ -137,7 +179,7 @@ int main()
 	}
 	cudaMemcpyAsync(device_Packet, host_Packet, packetSize, cudaMemcpyHostToDevice, 0);
 
-	singleBlockCA
+	singleBlockCA<<<>>>
 
 
 
