@@ -16,8 +16,8 @@
 
 
 // Maximum relative difference (par1_A - par1_B)/par1_A for each parameters
-constexpr float c_maxParRelDifference[]{0.1, 0.1, 0.1};
-constexpr int c_numParameters = sizeof(c_maxParRelDifference)/sizeof(c_maxParRelDifference[0]);
+constexpr float c_maxParAbsDifference[]{0.1, 0.1, 0.1};
+constexpr int c_numParameters = sizeof(c_maxParAbsDifference)/sizeof(c_maxParAbsDifference[0]);
 
 // maxSize is the maximum number of neighbors that a Cell can have
 // parNum is the number of parameters to check for the neighbors conditions
@@ -43,7 +43,7 @@ public:
 
 			for (auto j =0; j < m_params.m_size; ++j )
 			{
-				isNeighbor = isNeighbor & (fabs(2*(m_params.m_data[j] - m_cellsArray[rightCells.m_data[i]]->m_params[j]) /(m_params.m_data[j]+m_cellsArray[rightCells.m_data[i]]->m_params[j]))  < c_maxParRelDifference[j]);
+				isNeighbor = isNeighbor & (fabs((m_params.m_data[j] - m_cellsArray[rightCells.m_data[i]]->m_params[j]))  < c_maxParAbsDifference[j]);
 				if(!isNeighbor)
 					break;
 
@@ -91,7 +91,7 @@ public:
 		for (auto j =0; j < a->m_params.m_size; ++j )
 		{
 			bool isCompatible = (m_CAState < a->m_CAState) &&
-					(fabs(2*(a->m_params.m_data[j] - root->m_params.m_data[j]) /(a->m_params.m_data[j]+root->m_params.m_data[j]))  < c_maxParRelDifference[j]);
+					(fabs((a->m_params.m_data[j] - root->m_params.m_data[j]))  < c_maxParAbsDifference[j]);
 			if(!isCompatible)
 				return false;
 
