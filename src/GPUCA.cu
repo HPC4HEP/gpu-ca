@@ -66,7 +66,7 @@ bool isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const in
 // this will become a global kernel in the offline CA
 template< int maxNumLayersInPacket,int maxCellsPerLayer, int warpSize >
 __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ hits,
-		CUDAQueue<maxNumLayersInPacket*maxCellsPerLayer, Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum> > outputCells, CUDAQueue<maxCellsPerLayer, int >* outputCellsIdOnLayer, int hitId )
+		CUDAQueue<2, Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum> >& outputCells, CUDAQueue<maxCellsPerLayer, int >* outputCellsIdOnLayer, int hitId )
 {
 	auto threadInWarpIdx = threadIdx.x%32;
 	auto layerId = hits[hitId].layerId;
