@@ -137,7 +137,9 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
      printf("number of cells=%d numberOfOriginHitsInInnerLayers=%d copyOutputCellsSteps=%d \n", foundCells.m_size, numberOfOriginHitsInInnerLayers);
      for(auto i =0 ; i< foundCells.m_size; ++i)
      {
-    	 printf("foundCells m_id = %d \n", foundCells.m_data[i].m_id);
+    	 printf("foundCells m_id = %d foundCells m_layerId = %d foundCells m_id = %d foundCells m_layer = %d foundCells m_innerhit = %d foundCells m_outerHit = %d "
+    			 "foundCells m_CAstate = %d \n", foundCells.m_data[i].m_id, foundCells.m_data[i].m_layerId,
+    			 foundCells.m_data[i].m_innerHitId, foundCells.m_data[i].m_outerHitId, foundCells.m_data[i].m_CAState);
      }
 	}
 
