@@ -19,11 +19,13 @@
 
 
 // Maximum relative difference (par1_A - par1_B)/par1_A for each parameters
-constexpr float c_maxDoubletRelDifference[]{0.5, 0.5};
-constexpr float c_maxDoubletAbsDifference[]{0.1, 0.2};
+constexpr float c_maxDoubletRelDifference[]{0.1, 0.05};
+constexpr float c_maxDoubletAbsDifference[]{0.1, 0.1};
 constexpr int c_doubletParametersNum = sizeof(c_maxDoubletRelDifference)/sizeof(c_maxDoubletRelDifference[0]);
 constexpr int c_maxCellsNumPerLayer  = 32;
 constexpr int c_maxNeighborsNumPerCell = 4;
+constexpr int c_maxHitsNumPerTrack = 5;
+constexpr int c_maxTracksNum = 32;
 
 template <int maxNumLayersInPacket>
 __inline__
@@ -48,11 +50,11 @@ __inline__
 __device__
 bool isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const int idTarget)
 {
-//	float maxDoubletRelDifference[]{0.1, 0.1};
-//	float relEtaDiff = 2*fabs((hits[idOrigin].eta - hits[idTarget].eta)/(hits[idOrigin].eta+hits[idTarget].eta));
-//	if(relEtaDiff > maxDoubletRelDifference[0]) return false;
-//	float relPhiDiff = 2*fabs((hits[idOrigin].phi - hits[idTarget].phi)/(hits[idOrigin].phi+hits[idTarget].phi));
-//	if(relPhiDiff > maxDoubletRelDifference[1]) return false;
+	//	float maxDoubletRelDifference[]{0.1, 0.1};
+	//	float relEtaDiff = 2*fabs((hits[idOrigin].eta - hits[idTarget].eta)/(hits[idOrigin].eta+hits[idTarget].eta));
+	//	if(relEtaDiff > maxDoubletRelDifference[0]) return false;
+	//	float relPhiDiff = 2*fabs((hits[idOrigin].phi - hits[idTarget].phi)/(hits[idOrigin].phi+hits[idTarget].phi));
+	//	if(relPhiDiff > maxDoubletRelDifference[1]) return false;
 
 	float maxDoubletAbsDifference[]{0.1, 0.1};
 	float relEtaDiff = fabs(hits[idOrigin].eta - hits[idTarget].eta);
@@ -95,7 +97,7 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 }
 
 
-template <int maxNumLayersInPacket, int maxCellsPerLayer, int maxNeighborsNumPerCell, int doubletParametersNum, int warpSize>
+template <int maxNumLayersInPacket, int maxCellsPerLayer, int maxNeighborsNumPerCell, int doubletParametersNum, int maxHitsNum, int maxTracksNum, int warpSize>
 __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ packetPayload, Cell<maxNeighborsNumPerCell, doubletParametersNum>* outputCells )
 {
 	auto warpIdx = (blockDim.x*blockIdx.x + threadIdx.x)/warpSize;
@@ -104,7 +106,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	constexpr const auto maxCellsNum = maxCellsPerLayer*maxNumLayersInPacket;
 	__shared__ CUDAQueue<maxCellsNum, Cell<maxNeighborsNumPerCell, doubletParametersNum> > foundCells;
 	__shared__ CUDAQueue<maxCellsPerLayer, int > cellsOnLayer[maxNumLayersInPacket];
-
+	__shared__ CUDAQueue<CUDAQueue<maxTracksNum, Track<maxHitsNum> > foundTracks;
 	//We will now create cells with the inner hit on each layer except the last one, which does not have a layer next to it.
 	auto numberOfOriginHitsInInnerLayers = packetHeader->firstHitIdOnLayer[packetHeader->numLayers-1];
 
@@ -123,35 +125,35 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	__syncthreads();
 
 
-//	auto copyOutputCellsSteps = (foundCells[0].m_size + blockDim.x - 1) / blockDim.x;
-//	for(auto i = 0; i<copyOutputCellsSteps; ++i)
-//	{
-//		auto cellIdx = threadIdx.x + blockDim.x *i;
-//		if(cellIdx < foundCells.m_size)
-//		{
-//			foundCells.m_data[cellIdx].m_id = cellIdx;
-//			outputCells[cellIdx] = foundCells.m_data[cellIdx];
-//
-//		}
-//	}
-//
-//	__syncthreads();
-//	if(threadIdx.x == 0){
-//
-////     printf("number of cells=%d numberOfOriginHitsInInnerLayers=%d copyOutputCellsSteps=%d \n", foundCells.m_size, numberOfOriginHitsInInnerLayers);
-//     for(auto i =0 ; i< foundCells.m_size; ++i)
-//     {
-//    	 printf("foundCells m_id = %d foundCells m_layerId = %d foundCells m_innerhit = %d foundCells m_outerHit = %d "
-//    			 "foundCells m_CAstate = %d \n", foundCells.m_data[i].m_id, foundCells.m_data[i].m_layerId,
-//    			 foundCells.m_data[i].m_innerHitId, foundCells.m_data[i].m_outerHitId, foundCells.m_data[i].m_CAState);
-//     }
-//	}
+	//	auto copyOutputCellsSteps = (foundCells[0].m_size + blockDim.x - 1) / blockDim.x;
+	//	for(auto i = 0; i<copyOutputCellsSteps; ++i)
+	//	{
+	//		auto cellIdx = threadIdx.x + blockDim.x *i;
+	//		if(cellIdx < foundCells.m_size)
+	//		{
+	//			foundCells.m_data[cellIdx].m_id = cellIdx;
+	//			outputCells[cellIdx] = foundCells.m_data[cellIdx];
+	//
+	//		}
+	//	}
+	//
+	//	__syncthreads();
+	//	if(threadIdx.x == 0){
+	//
+	////     printf("number of cells=%d numberOfOriginHitsInInnerLayers=%d copyOutputCellsSteps=%d \n", foundCells.m_size, numberOfOriginHitsInInnerLayers);
+	//     for(auto i =0 ; i< foundCells.m_size; ++i)
+	//     {
+	//    	 printf("foundCells m_id = %d foundCells m_layerId = %d foundCells m_innerhit = %d foundCells m_outerHit = %d "
+	//    			 "foundCells m_CAstate = %d \n", foundCells.m_data[i].m_id, foundCells.m_data[i].m_layerId,
+	//    			 foundCells.m_data[i].m_innerHitId, foundCells.m_data[i].m_outerHitId, foundCells.m_data[i].m_CAState);
+	//     }
+	//	}
 
 	// now that we have the cells, it is time to match them and find neighboring cells
 
 
-	auto neighborFindingNumSteps = (foundCells.m_size + blockDim.x - 1) / blockDim.x;
-	for (auto i = 0; i < neighborFindingNumSteps; ++i)
+	auto cellsLoopingNumSteps = (foundCells.m_size + blockDim.x - 1) / blockDim.x;
+	for (auto i = 0; i < cellsLoopingNumSteps; ++i)
 	{
 		auto cellIdx = threadIdx.x + i*blockDim.x;
 		if(cellIdx < foundCells.m_size && foundCells.m_data[cellIdx].m_layerId < packetHeader->numLayers -1)
@@ -162,6 +164,29 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	}
 
 	__syncthreads();
+	for (auto l = 0; l < packetHeader->numLayers; ++l)
+	{
+
+		for (auto i = 0; i < cellsLoopingNumSteps; ++i)
+		{
+			auto cellIdx = threadIdx.x + i*blockDim.x;
+			if(cellIdx < foundCells.m_size)
+			{
+				foundCells.m_data[cellIdx].evolve();
+			}
+
+		}
+
+	}
+	__syncthreads();
+
+
+// only 1 thread per cell on the first layer will now look for tracks
+
+	Track<maxHitsNum> tmpTrack;
+
+
+
 
 
 }
@@ -175,9 +200,9 @@ int main()
 	constexpr auto numHitsPerLayer = 7;
 
 	srand (time(NULL));
-//	srand(42);
+	//	srand(42);
 	std::pair<float, float> range_eta(0.1, 0.3);
-	std::pair<float, float> range_phi(0.5, 0.6);
+	std::pair<float, float> range_phi(0.4, 0.6);
 
 	std::vector<SimpleHit> hitsVector(numLayers*numHitsPerLayer);
 
@@ -233,7 +258,8 @@ int main()
 	}
 	cudaMemcpyAsync(device_Packet, host_packetHeader, packetSize, cudaMemcpyHostToDevice, 0);
 
-	singleBlockCA<c_maxNumberOfLayersInPacket, c_maxCellsNumPerLayer,c_maxNeighborsNumPerCell, c_doubletParametersNum, 32><<<1,1024,0,0>>>(device_Packet, (SimpleHit*)((char*)device_Packet+sizeof(PacketHeader<c_maxNumberOfLayersInPacket>)),device_outputCells);
+	singleBlockCA<c_maxNumberOfLayersInPacket, c_maxCellsNumPerLayer,c_maxNeighborsNumPerCell, c_doubletParametersNum,c_maxHitsNumPerTrack,c_maxTracksNum, 32><<<1,1024,0,0>>>(device_Packet, (SimpleHit*)((char*)device_Packet+sizeof(PacketHeader<c_maxNumberOfLayersInPacket>)),device_outputCells);
+
 
 
 	cudaMemcpyAsync(host_outputCells, device_outputCells, c_maxCellsNumPerLayer*numLayers*sizeof(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>), cudaMemcpyDeviceToHost, 0);
@@ -241,10 +267,10 @@ int main()
 
 	cudaStreamSynchronize(0);
 
-//	for (auto i = 0; i<c_maxCellsNumPerLayer*numLayers; ++i)
-//	{
-//		std::cout << host_outputCells->m_id << " " << host_outputCells->m_layerId << " " << host_outputCells->m_innerHitId << std::endl;
-//	}
+	//	for (auto i = 0; i<c_maxCellsNumPerLayer*numLayers; ++i)
+	//	{
+	//		std::cout << host_outputCells->m_id << " " << host_outputCells->m_layerId << " " << host_outputCells->m_innerHitId << std::endl;
+	//	}
 
 	cudaFreeHost(host_packetHeader);
 	cudaFree(device_Packet);
