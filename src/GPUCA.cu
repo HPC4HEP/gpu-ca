@@ -123,7 +123,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	for(auto i = 0; i<copyOutputCellsSteps; ++i)
 	{
 		auto cellIdx = threadIdx.x + blockDim.x *i;
-		if(cellIdx < copyOutputCellsSteps)
+		if(cellIdx < foundCells.m_size)
 		{
 			foundCells.m_data[cellIdx].m_id = cellIdx;
 			outputCells[cellIdx] = foundCells.m_data[cellIdx];
