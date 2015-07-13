@@ -88,7 +88,7 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 
 
 template <int maxNumLayersInPacket, int maxCellsNum, int maxNeighborsNumPerCell, int doubletParametersNum, int warpSize>
-__global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ packetPayload, Cell* outputCells )
+__global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ packetPayload, Cell<maxNeighborsNumPerCell, doubletParametersNum>* outputCells )
 {
 	auto warpIdx = (blockDim.x*blockIdx.x + threadIdx.x)/warpSize;
 	auto warpNum = blockDim.x/warpSize;
@@ -161,12 +161,12 @@ int main()
 	PacketHeader<c_maxNumberOfLayersInPacket>* device_Packet;
 	auto packetSize = sizeof(PacketHeader<c_maxNumberOfLayersInPacket>) + hitsVector.size()*sizeof(SimpleHit);
 
-	Cell* device_outputCells;
-	Cell* host_outputCells;
+	Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>* device_outputCells;
+	Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>* host_outputCells;
 	cudaMallocHost((void**)&host_packetHeader, packetSize);
 	cudaMalloc((void**)&device_Packet, packetSize);
-	cudaMalloc((void**)&device_outputCells, c_maxCellsNumPerLayer*numLayers*sizeof(Cell));
-	cudaMallocHost((void**)&host_outputCells, c_maxCellsNumPerLayer*numLayers*sizeof(Cell));
+	cudaMalloc((void**)&device_outputCells, c_maxCellsNumPerLayer*numLayers*sizeof(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>));
+	cudaMallocHost((void**)&host_outputCells, c_maxCellsNumPerLayer*numLayers*sizeof(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>));
 
 	SimpleHit* host_packetPayload = (SimpleHit*)((char*)host_packetHeader + sizeof(PacketHeader<c_maxNumberOfLayersInPacket>));
 
@@ -197,7 +197,7 @@ int main()
 	singleBlockCA<c_maxNumberOfLayersInPacket,  c_maxCellsNumPerLayer*numLayers,c_maxNeighborsNumPerCell, c_doubletParametersNum, 32><<<1,2048,0,0>>>(device_Packet, (SimpleHit*)((char*)device_Packet+sizeof(host_packetHeader)),device_outputCells);
 
 
-	cudaMemcpyAsync(host_outputCells, device_outputCells, c_maxCellsNumPerLayer*numLayers*sizeof(Cell), cudaMemcpyDeviceToHost, 0);
+	cudaMemcpyAsync(host_outputCells, device_outputCells, c_maxCellsNumPerLayer*numLayers*sizeof(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>), cudaMemcpyDeviceToHost, 0);
 
 	cudaFreeHost(host_packetHeader);
 	cudaFree(device_Packet);
