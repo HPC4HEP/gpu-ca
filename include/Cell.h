@@ -128,7 +128,7 @@ public:
 				{
 					hasOneCompatibleNeighbor = true;
 					tmpTrack.m_cells.push(m_rightNeighbors.m_data[i]);
-					m_cellsArray[m_rightNeighbors.m_data[i]]->findTracks<maxTracksNum, maxHitsNum>(foundTracks, tmpTrack);
+					m_cellsArray[m_rightNeighbors.m_data[i]].findTracks<maxTracksNum, maxHitsNum>(foundTracks, tmpTrack);
 					tmpTrack.m_cells.pop_back();
 
 				}
