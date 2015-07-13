@@ -141,8 +141,7 @@ public:
 	CUDAQueue<maxSize, int>  m_leftNeighbors;
 	CUDAQueue<maxSize, int>  m_rightNeighbors;
 	CUDAQueue<parNum, float> m_params;
-	const float c_maxParAbsDifference[parNum]= {0.1, 0.1, 0.1};
-	const int c_numParameters =parNum;
+	const float c_maxParAbsDifference[parNum]= {0.1, 0.1};
 
 	int m_id;
 	int m_layerId;
