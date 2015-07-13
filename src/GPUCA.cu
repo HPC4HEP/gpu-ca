@@ -19,7 +19,7 @@
 
 
 // Maximum relative difference (par1_A - par1_B)/par1_A for each parameters
-constexpr float c_maxDoubletRelDifference[]{0.1, 0.1};
+constexpr float c_maxDoubletRelDifference[]{0.5, 0.5};
 constexpr int c_doubletParametersNum = sizeof(c_maxDoubletRelDifference)/sizeof(c_maxDoubletRelDifference[0]);
 constexpr int c_maxCellsNumPerLayer  = 64;
 constexpr int c_maxNeighborsNumPerCell = 8;
