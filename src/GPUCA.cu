@@ -103,14 +103,6 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	auto numberOfOriginHitsInInnerLayers = packetHeader->firstHitIdOnLayer[packetHeader->numLayers-1];
 
 	auto nSteps = (numberOfOriginHitsInInnerLayers+warpNum-1)/warpNum;
-	if(threadIdx.x == 0){
-		for (auto i = 0; i< packetHeader->size; ++i)
-		{
-			printf("%d phi=%f eta=%f layerId=%d \n", i, packetPayload[i].phi, packetPayload[i].eta,  packetPayload[i].layerId);
-		}
-
-
-	}
 
 	for (auto i = 0; i < nSteps; ++i)
 	{
@@ -126,11 +118,6 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 
 
 	auto copyOutputCellsSteps = (foundCells.m_size + blockDim.x - 1) / blockDim.x;
-	if(threadIdx.x == 0){
-
-     printf("maxNumLayersInPacket=%d numberOfOriginHitsInInnerLayers=%d maxCellsNum=%d nSteps=%d copyOutputCellsSteps=%d \n", maxNumLayersInPacket, numberOfOriginHitsInInnerLayers, maxCellsNum, nSteps,copyOutputCellsSteps);
-
-	}
 	for(auto i = 0; i<copyOutputCellsSteps; ++i)
 	{
 		auto cellIdx = threadIdx.x + blockDim.x *i;
@@ -138,14 +125,14 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		{
 			foundCells.m_data[cellIdx].m_id = cellIdx;
 			outputCells[cellIdx] = foundCells.m_data[cellIdx];
-	    	 printf("cellIdx= %d foundCells m_id = %d \n",cellIdx, foundCells.m_data[i].m_id);
+
 		}
 	}
 
 	__syncthreads();
 	if(threadIdx.x == 0){
 
-     printf("number of cells=%d numberOfOriginHitsInInnerLayers=%d copyOutputCellsSteps=%d \n", foundCells.m_size, numberOfOriginHitsInInnerLayers);
+//     printf("number of cells=%d numberOfOriginHitsInInnerLayers=%d copyOutputCellsSteps=%d \n", foundCells.m_size, numberOfOriginHitsInInnerLayers);
      for(auto i =0 ; i< foundCells.m_size; ++i)
      {
     	 printf("foundCells m_id = %d foundCells m_layerId = %d foundCells m_innerhit = %d foundCells m_outerHit = %d "
