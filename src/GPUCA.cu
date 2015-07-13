@@ -150,7 +150,8 @@ int main()
 	constexpr auto numLayers = 3;
 	constexpr auto numHitsPerLayer = 2;
 
-	srand (time(NULL));
+//	srand (time(NULL));
+	srand(42);
 	std::pair<float, float> range_eta(0.1, 0.3);
 	std::pair<float, float> range_phi(0.5, 0.6);
 
