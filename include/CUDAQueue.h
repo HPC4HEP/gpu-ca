@@ -40,6 +40,7 @@ struct CUDAQueue
 			return m_data[previousSize];
 		}
 
+
 	};
 
 
