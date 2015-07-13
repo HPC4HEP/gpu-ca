@@ -86,14 +86,14 @@ public:
 //check whether a Cell and the root have compatible parameters.
 	__inline__
 	__device__
-	bool areCompatible(Cell* a, Cell* root)
+	bool areCompatible(const Cell& a, const Cell& root)
 	{
 		const float c_maxParAbsDifference[parNum]= {0.1, 0.1};
 
-		for (auto j =0; j < a->m_params.m_size; ++j )
+		for (auto j =0; j < a.m_params.m_size; ++j )
 		{
-			bool isCompatible = (m_CAState < a->m_CAState) &&
-					(fabs((a->m_params.m_data[j] - root->m_params.m_data[j]))  < c_maxParAbsDifference[j]);
+			bool isCompatible = (m_CAState < a.m_CAState) &&
+					(fabs((a.m_params.m_data[j] - root.m_params.m_data[j]))  < c_maxParAbsDifference[j]);
 			if(!isCompatible)
 				return false;
 
@@ -124,7 +124,7 @@ public:
 			bool hasOneCompatibleNeighbor = false;
 			for( auto i=0 ; i < m_rightNeighbors.m_size; ++i)
 			{
-				if(areCompatible(&(m_cellsArray[m_rightNeighbors.m_data[i]]), &(m_cellsArray[tmpTrack.m_cells.m_data[0]])) )
+				if(areCompatible(m_cellsArray[m_rightNeighbors.m_data[i]], m_cellsArray[tmpTrack.m_cells.m_data[0]]) )
 				{
 					hasOneCompatibleNeighbor = true;
 					tmpTrack.m_cells.push(m_rightNeighbors.m_data[i]);
