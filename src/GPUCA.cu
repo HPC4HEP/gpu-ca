@@ -66,7 +66,7 @@ bool isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const in
 // this will become a global kernel in the offline CA
 template< int maxNumLayersInPacket,int maxCellsNum, int warpSize >
 __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ hits,
-		CUDAQueue<maxCellsNum, Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum> >& outputCells, int hitId )
+		CUDAQueue<maxCellsNum, Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum> >* outputCells, int hitId )
 {
 	auto threadInWarpIdx = threadIdx.x%32;
 	auto layerId = hits[hitId].layerId;
@@ -81,7 +81,7 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 
 			if(isADoublet(hits, hitId, targetHitId))
 			{
-				auto cellId = outputCells.push(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>(hitId, targetHitId, layerId, outputCells.m_data));
+				auto cellId = outputCells[layerId].push(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>(hitId, targetHitId, layerId, outputCells[layerId].m_data));
 				if(cellId == -1)
 					break;
 
@@ -100,7 +100,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	auto warpIdx = (blockDim.x*blockIdx.x + threadIdx.x)/warpSize;
 	auto warpNum = blockDim.x/warpSize;
 	auto threadInWarpIdx = threadIdx.x%warpSize;
-	__shared__ CUDAQueue<maxCellsNum, Cell<maxNeighborsNumPerCell, doubletParametersNum> > foundCells;
+	__shared__ CUDAQueue<maxCellsNum, Cell<maxNeighborsNumPerCell, doubletParametersNum> > foundCells[packetHeader->numLayers];
 
 	//We will now create cells with the inner hit on each layer except the last one, which does not have a layer next to it.
 	auto numberOfOriginHitsInInnerLayers = packetHeader->firstHitIdOnLayer[packetHeader->numLayers-1];
@@ -116,33 +116,54 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		}
 
 
+
 	}
 	__syncthreads();
 
 
-	auto copyOutputCellsSteps = (foundCells.m_size + blockDim.x - 1) / blockDim.x;
-	for(auto i = 0; i<copyOutputCellsSteps; ++i)
+//	auto copyOutputCellsSteps = (foundCells[0].m_size + blockDim.x - 1) / blockDim.x;
+//	for(auto i = 0; i<copyOutputCellsSteps; ++i)
+//	{
+//		auto cellIdx = threadIdx.x + blockDim.x *i;
+//		if(cellIdx < foundCells.m_size)
+//		{
+//			foundCells.m_data[cellIdx].m_id = cellIdx;
+//			outputCells[cellIdx] = foundCells.m_data[cellIdx];
+//
+//		}
+//	}
+//
+//	__syncthreads();
+//	if(threadIdx.x == 0){
+//
+////     printf("number of cells=%d numberOfOriginHitsInInnerLayers=%d copyOutputCellsSteps=%d \n", foundCells.m_size, numberOfOriginHitsInInnerLayers);
+//     for(auto i =0 ; i< foundCells.m_size; ++i)
+//     {
+//    	 printf("foundCells m_id = %d foundCells m_layerId = %d foundCells m_innerhit = %d foundCells m_outerHit = %d "
+//    			 "foundCells m_CAstate = %d \n", foundCells.m_data[i].m_id, foundCells.m_data[i].m_layerId,
+//    			 foundCells.m_data[i].m_innerHitId, foundCells.m_data[i].m_outerHitId, foundCells.m_data[i].m_CAState);
+//     }
+//	}
+
+	// now that we have the cells, it is time to match them and find neighboring cells
+
+	int warpsPerLayer =  warpNum/(packetHeader->numLayers -1);
+	int layerId = warpIdx/warpsPerLayer;
+	int threadsPerLayer = warpsPerLayer * warpSize;
+	auto neighborFindingNumSteps = (foundCells[layerId].m_size + threadsPerLayer - 1) / threadsPerLayer;
+	for (auto i = 0; i < neighborFindingNumSteps; ++i)
 	{
-		auto cellIdx = threadIdx.x + blockDim.x *i;
-		if(cellIdx < foundCells.m_size)
+		auto cellIdx = (threadInWarpIdx + warpSize*(warpIdx % warpsPerLayer)) + i*threadsPerLayer;
+		if(cellIdx < foundCells[layerId].m_size && layerId < numLayers-1)
 		{
-			foundCells.m_data[cellIdx].m_id = cellIdx;
-			outputCells[cellIdx] = foundCells.m_data[cellIdx];
+			foundCells[layerId].m_data[cellIdx].neighborSearch(foundCells[layerId+1]);
 
 		}
+
 	}
 
 	__syncthreads();
-	if(threadIdx.x == 0){
 
-//     printf("number of cells=%d numberOfOriginHitsInInnerLayers=%d copyOutputCellsSteps=%d \n", foundCells.m_size, numberOfOriginHitsInInnerLayers);
-     for(auto i =0 ; i< foundCells.m_size; ++i)
-     {
-    	 printf("foundCells m_id = %d foundCells m_layerId = %d foundCells m_innerhit = %d foundCells m_outerHit = %d "
-    			 "foundCells m_CAstate = %d \n", foundCells.m_data[i].m_id, foundCells.m_data[i].m_layerId,
-    			 foundCells.m_data[i].m_innerHitId, foundCells.m_data[i].m_outerHitId, foundCells.m_data[i].m_CAState);
-     }
-	}
 
 }
 
@@ -213,7 +234,7 @@ int main()
 	}
 	cudaMemcpyAsync(device_Packet, host_packetHeader, packetSize, cudaMemcpyHostToDevice, 0);
 
-	singleBlockCA<c_maxNumberOfLayersInPacket,  c_maxCellsNumPerLayer*numLayers,c_maxNeighborsNumPerCell, c_doubletParametersNum, 32><<<1,1024,0,0>>>(device_Packet, (SimpleHit*)((char*)device_Packet+sizeof(PacketHeader<c_maxNumberOfLayersInPacket>)),device_outputCells);
+	singleBlockCA<c_maxNumberOfLayersInPacket, c_maxCellsNumPerLayer,c_maxNeighborsNumPerCell, c_doubletParametersNum, 32><<<1,1024,0,0>>>(device_Packet, (SimpleHit*)((char*)device_Packet+sizeof(PacketHeader<c_maxNumberOfLayersInPacket>)),device_outputCells);
 
 
 	cudaMemcpyAsync(host_outputCells, device_outputCells, c_maxCellsNumPerLayer*numLayers*sizeof(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>), cudaMemcpyDeviceToHost, 0);
