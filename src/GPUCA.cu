@@ -127,6 +127,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		{
 			foundCells.m_data[cellIdx].m_id = cellIdx;
 			outputCells[cellIdx] = foundCells.m_data[cellIdx];
+	    	 printf("cellIdx= %d foundCells m_id = %d \n",cellIdx, foundCells.m_data[i].m_id);
 		}
 	}
 
