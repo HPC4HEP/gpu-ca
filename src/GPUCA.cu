@@ -113,13 +113,13 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	}
 	__syncthreads();
 
+
+	auto copyOutputCellsSteps = (foundCells.m_size + blockDim.x - 1) / blockDim.x;
 	if(threadIdx.x == 0){
 
-     printf("maxNumLayersInPacket=%d numberOfOriginHitsInInnerLayers=%d maxCellsNum=%d nSteps=%d \n", maxNumLayersInPacket, numberOfOriginHitsInInnerLayers, maxCellsNum, nSteps);
+     printf("maxNumLayersInPacket=%d numberOfOriginHitsInInnerLayers=%d maxCellsNum=%d nSteps=%d copyOutputCellsSteps=%d \n", maxNumLayersInPacket, numberOfOriginHitsInInnerLayers, maxCellsNum, nSteps,copyOutputCellsSteps);
 
 	}
-	auto copyOutputCellsSteps = (foundCells.m_size + blockDim.x - 1) / blockDim.x;
-
 	for(auto i = 0; i<copyOutputCellsSteps; ++i)
 	{
 		auto cellIdx = threadIdx.x + blockDim.x *i;
