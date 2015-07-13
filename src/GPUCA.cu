@@ -22,8 +22,8 @@
 constexpr float c_maxDoubletRelDifference[]{0.5, 0.5};
 constexpr float c_maxDoubletAbsDifference[]{0.1, 0.2};
 constexpr int c_doubletParametersNum = sizeof(c_maxDoubletRelDifference)/sizeof(c_maxDoubletRelDifference[0]);
-constexpr int c_maxCellsNumPerLayer  = 64;
-constexpr int c_maxNeighborsNumPerCell = 8;
+constexpr int c_maxCellsNumPerLayer  = 32;
+constexpr int c_maxNeighborsNumPerCell = 4;
 
 template <int maxNumLayersInPacket>
 __inline__
