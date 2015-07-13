@@ -126,8 +126,15 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		}
 	}
 
-    printf("number of cells=%d\n", foundCells.m_size);
+	__syncthreads();
+	if(threadIdx.x == 0){
 
+     printf("number of cells=%d numberOfOriginHitsInInnerLayers=%d copyOutputCellsSteps=%d \n", foundCells.m_size, numberOfOriginHitsInInnerLayers);
+     for(auto i =0 ; i< foundCells.m_size; ++i)
+     {
+    	 printf("foundCells m_id = %d \n", foundCells.m_data[cellIdx].m_id);
+     }
+	}
 
 }
 
@@ -205,10 +212,10 @@ int main()
 
 	cudaStreamSynchronize(0);
 
-	for (auto i = 0; i<c_maxCellsNumPerLayer*numLayers; ++i)
-	{
-		std::cout << host_outputCells->m_id << " " << host_outputCells->m_layerId << " " << host_outputCells->m_innerHitId << std::endl;
-	}
+//	for (auto i = 0; i<c_maxCellsNumPerLayer*numLayers; ++i)
+//	{
+//		std::cout << host_outputCells->m_id << " " << host_outputCells->m_layerId << " " << host_outputCells->m_innerHitId << std::endl;
+//	}
 
 	cudaFreeHost(host_packetHeader);
 	cudaFree(device_Packet);
