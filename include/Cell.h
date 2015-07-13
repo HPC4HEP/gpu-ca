@@ -43,7 +43,7 @@ public:
 
 			for (auto j =0; j < m_params.m_size; ++j )
 			{
-				isNeighbor = isNeighbor & (fabs((m_params.m_data[j] - m_cellsArray[rightCells.m_data[i]].m_params[j]))  < c_maxParAbsDifference[j]);
+				isNeighbor = isNeighbor & (fabs((m_params.m_data[j] - m_cellsArray[rightCells.m_data[i]].m_params.m_data[j]))  < c_maxParAbsDifference[j]);
 				if(!isNeighbor)
 					break;
 
@@ -53,7 +53,7 @@ public:
 			// viceversa this cell will be the left neighbors for rightNeighbor(i)
 			if (isNeighbor)
 			{
-				m_cellsArray[rightCells.m_data[i]]->m_leftNeighbors.push(m_id);
+				m_cellsArray[rightCells.m_data[i]].m_leftNeighbors.push(m_id);
 				m_rightNeighbors.push(m_cellsArray[rightCells.m_data[i]].m_id);
 				++neighborNum;
 			}
