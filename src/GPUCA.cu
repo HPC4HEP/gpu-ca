@@ -100,7 +100,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	auto warpIdx = (blockDim.x*blockIdx.x + threadIdx.x)/warpSize;
 	auto warpNum = blockDim.x/warpSize;
 	auto threadInWarpIdx = threadIdx.x%warpSize;
-	__shared__ CUDAQueue<maxCellsNum, Cell<maxNeighborsNumPerCell, doubletParametersNum> > foundCells[packetHeader->numLayers];
+	__shared__ CUDAQueue<maxCellsNum, Cell<maxNeighborsNumPerCell, doubletParametersNum> > foundCells[maxNumLayersInPacket];
 
 	//We will now create cells with the inner hit on each layer except the last one, which does not have a layer next to it.
 	auto numberOfOriginHitsInInnerLayers = packetHeader->firstHitIdOnLayer[packetHeader->numLayers-1];
@@ -154,7 +154,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	for (auto i = 0; i < neighborFindingNumSteps; ++i)
 	{
 		auto cellIdx = (threadInWarpIdx + warpSize*(warpIdx % warpsPerLayer)) + i*threadsPerLayer;
-		if(cellIdx < foundCells[layerId].m_size && layerId < numLayers-1)
+		if(cellIdx < foundCells[layerId].m_size && layerId < packetHeader->numLayers-1)
 		{
 			foundCells[layerId].m_data[cellIdx].neighborSearch(foundCells[layerId+1]);
 
