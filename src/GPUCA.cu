@@ -126,6 +126,8 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		}
 	}
 
+    printf("number of cells=%d\n", foundCells.m_size);
+
 
 }
 
