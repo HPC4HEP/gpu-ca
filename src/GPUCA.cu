@@ -106,7 +106,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	constexpr const auto maxCellsNum = maxCellsPerLayer*maxNumLayersInPacket;
 	__shared__ CUDAQueue<maxCellsNum, Cell<maxNeighborsNumPerCell, doubletParametersNum> > foundCells;
 	__shared__ CUDAQueue<maxCellsPerLayer, int > cellsOnLayer[maxNumLayersInPacket];
-	__shared__ CUDAQueue<CUDAQueue<maxTracksNum, Track<maxHitsNum> > foundTracks;
+	__shared__ CUDAQueue<maxTracksNum, Track<maxHitsNum> > foundTracks;
 	//We will now create cells with the inner hit on each layer except the last one, which does not have a layer next to it.
 	auto numberOfOriginHitsInInnerLayers = packetHeader->firstHitIdOnLayer[packetHeader->numLayers-1];
 
