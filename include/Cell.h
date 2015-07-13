@@ -30,6 +30,8 @@ public:
 	__inline__
 	__device__ int neighborSearch(const CUDAQueue<queueMaxSize, int>& rightCells)
 	{
+		const float c_maxParAbsDifference[parNum]= {0.1, 0.1};
+
 
 		int neighborNum = 0;
 
@@ -86,6 +88,8 @@ public:
 	__device__
 	bool areCompatible(Cell* a, Cell* root)
 	{
+		const float c_maxParAbsDifference[parNum]= {0.1, 0.1};
+
 		for (auto j =0; j < a->m_params.m_size; ++j )
 		{
 			bool isCompatible = (m_CAState < a->m_CAState) &&
@@ -141,7 +145,6 @@ public:
 	CUDAQueue<maxSize, int>  m_leftNeighbors;
 	CUDAQueue<maxSize, int>  m_rightNeighbors;
 	CUDAQueue<parNum, float> m_params;
-	const float c_maxParAbsDifference[parNum]= {0.1, 0.1};
 
 	int m_id;
 	int m_layerId;
