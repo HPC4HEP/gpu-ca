@@ -72,11 +72,12 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 		auto targetHitId = firstHitIdOnNextLayer + i*warpSize + threadInWarpIdx;
 		if(targetHitId-firstHitIdOnNextLayer < numHitsOnNextLayer)
 		{
+			 printf("hitId = %d threadInWarpIdx = %d layerId = %d firstHitIdOnNextLayer = %d numHitsOnNextLayer = %d "
+			    			 "targetHitId %d \n", hitId, threadInWarpIdx, layerId,
+							 firstHitIdOnNextLayer, numHitsOnNextLayer, targetHitId);
 			if(isADoublet(hits, hitId, targetHitId))
 			{
-				 printf("hitId = %d threadInWarpIdx = %d layerId = %d firstHitIdOnNextLayer = %d numHitsOnNextLayer = %d "
-				    			 "targetHitId %d \n", hitId, threadInWarpIdx, layerId,
-								 firstHitIdOnNextLayer, numHitsOnNextLayer, targetHitId);
+
 
 				auto cellId = outputCells.push(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>(hitId, targetHitId, layerId, outputCells.m_data));
 				if(cellId == -1)
