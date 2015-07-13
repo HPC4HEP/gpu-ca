@@ -113,7 +113,11 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	}
 	__syncthreads();
 
+	if(threadIdx.x == 0){
 
+     printf("maxNumLayersInPacket=%d numberOfOriginHitsInInnerLayers=%d maxCellsNum=%d nSteps=%d \n", maxNumLayersInPacket, numberOfOriginHitsInInnerLayers, maxCellsNum, nSteps);
+
+	}
 	auto copyOutputCellsSteps = (foundCells.m_size + blockDim.x - 1) / blockDim.x;
 
 	for(auto i = 0; i<copyOutputCellsSteps; ++i)
@@ -143,8 +147,8 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 
 int main()
 {
-	constexpr auto numLayers = 6;
-	constexpr auto numHitsPerLayer = 10;
+	constexpr auto numLayers = 3;
+	constexpr auto numHitsPerLayer = 2;
 
 	srand (time(NULL));
 	std::pair<float, float> range_eta(0.1, 0.3);
