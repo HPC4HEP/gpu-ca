@@ -88,7 +88,7 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 
 
 template <int maxNumLayersInPacket, int maxCellsNum, int maxNeighborsNumPerCell, int doubletParametersNum, int warpSize>
-__global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ packetPayload )
+__global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ packetPayload, Cell* outputCells )
 {
 	auto warpIdx = (blockDim.x*blockIdx.x + threadIdx.x)/warpSize;
 	auto warpNum = blockDim.x/warpSize;
@@ -114,7 +114,16 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	__syncthreads();
 
 
+	auto copyOutputCellsSteps = (foundCells.m_size + blockDim.x - 1) / blockDim.x;
 
+	for(auto i = 0; i<copyOutputCellsSteps; ++i)
+	{
+		auto cellIdx = threadIdx.x + blockDim.x *i;
+		if(cellIdx < copyOutputCellsSteps)
+		{
+			outputCells[cellIdx] = foundCells.m_data[cellIdx];
+		}
+	}
 
 
 }
@@ -151,8 +160,14 @@ int main()
 	PacketHeader<c_maxNumberOfLayersInPacket>* host_packetHeader;
 	PacketHeader<c_maxNumberOfLayersInPacket>* device_Packet;
 	auto packetSize = sizeof(PacketHeader<c_maxNumberOfLayersInPacket>) + hitsVector.size()*sizeof(SimpleHit);
+
+	Cell* device_outputCells;
+	Cell* host_outputCells;
 	cudaMallocHost((void**)&host_packetHeader, packetSize);
 	cudaMalloc((void**)&device_Packet, packetSize);
+	cudaMalloc((void**)&device_outputCells, c_maxCellsNumPerLayer*numLayers*sizeof(Cell));
+	cudaMallocHost((void**)&host_outputCells, c_maxCellsNumPerLayer*numLayers*sizeof(Cell));
+
 	SimpleHit* host_packetPayload = (SimpleHit*)((char*)host_packetHeader + sizeof(PacketHeader<c_maxNumberOfLayersInPacket>));
 
 
@@ -179,11 +194,10 @@ int main()
 	}
 	cudaMemcpyAsync(device_Packet, host_packetHeader, packetSize, cudaMemcpyHostToDevice, 0);
 
-	singleBlockCA<c_maxNumberOfLayersInPacket,  c_maxCellsNumPerLayer*numLayers,c_maxNeighborsNumPerCell, c_doubletParametersNum, 32><<<1,2048,0,0>>>(device_Packet, (SimpleHit*)((char*)device_Packet+sizeof(host_packetHeader)));
+	singleBlockCA<c_maxNumberOfLayersInPacket,  c_maxCellsNumPerLayer*numLayers,c_maxNeighborsNumPerCell, c_doubletParametersNum, 32><<<1,2048,0,0>>>(device_Packet, (SimpleHit*)((char*)device_Packet+sizeof(host_packetHeader)),device_outputCells);
 
 
-
-
+	cudaMemcpyAsync(host_outputCells, device_outputCells, c_maxCellsNumPerLayer*numLayers*sizeof(Cell), cudaMemcpyDeviceToHost, 0);
 
 	cudaFreeHost(host_packetHeader);
 	cudaFree(device_Packet);
