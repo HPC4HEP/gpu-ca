@@ -19,6 +19,7 @@ template<int maxHitsNum>
 struct Track {
 
 	__host__ __device__ Track(int rootHitId) : { m_cells.push(rootHitId);}
+	__host__ __device__ Track() : { }
 
 // track constructor should be passed the pointer of the root Cell
 	//
