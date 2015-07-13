@@ -157,7 +157,6 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		if(cellIdx < foundCells[layerId].m_size && layerId < packetHeader->numLayers-1)
 		{
 			foundCells[layerId].m_data[cellIdx].neighborSearch(foundCells[layerId+1]);
-
 		}
 
 	}
