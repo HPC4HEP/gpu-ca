@@ -124,7 +124,7 @@ public:
 			bool hasOneCompatibleNeighbor = false;
 			for( auto i=0 ; i < m_rightNeighbors.m_size; ++i)
 			{
-				if(areCompatible(&m_cellsArray[m_rightNeighbors.m_data[i]], &m_cellsArray[tmpTrack.m_cells[0]]) )
+				if(areCompatible(&(m_cellsArray[m_rightNeighbors.m_data[i]]), &(m_cellsArray[tmpTrack.m_cells[0]])) )
 				{
 					hasOneCompatibleNeighbor = true;
 					tmpTrack.m_cells.push(m_rightNeighbors.m_data[i]);
