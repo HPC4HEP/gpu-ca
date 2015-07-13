@@ -103,7 +103,14 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	auto numberOfOriginHitsInInnerLayers = packetHeader->firstHitIdOnLayer[packetHeader->numLayers-1];
 
 	auto nSteps = (numberOfOriginHitsInInnerLayers+warpNum-1)/warpNum;
+	if(threadIdx.x == 0){
+		for (auto i = 0; i< packetHeader->size; ++i)
+		{
+			printf("%d phi=%f eta=%f layerId=%d \n", i, packetPayload[i].phi, packetPayload[i].eta,  packetPayload[i].layerId);
+		}
 
+
+	}
 
 	for (auto i = 0; i < nSteps; ++i)
 	{
