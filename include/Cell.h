@@ -37,13 +37,13 @@ public:
 
 		for (auto i= 0; i < rightCells.m_size; ++i)
 		{
-			if(m_cellsArray[rightCells.m_data[i]]->m_innerHitId != m_outerHitId)
+			if(m_cellsArray[rightCells.m_data[i]].m_innerHitId != m_outerHitId)
 				continue;
 			bool isNeighbor = true;
 
 			for (auto j =0; j < m_params.m_size; ++j )
 			{
-				isNeighbor = isNeighbor & (fabs((m_params.m_data[j] - m_cellsArray[rightCells.m_data[i]]->m_params[j]))  < c_maxParAbsDifference[j]);
+				isNeighbor = isNeighbor & (fabs((m_params.m_data[j] - m_cellsArray[rightCells.m_data[i]].m_params[j]))  < c_maxParAbsDifference[j]);
 				if(!isNeighbor)
 					break;
 
@@ -69,7 +69,7 @@ public:
 		auto hasFriends = false;
 		for(auto i =0; i < m_leftNeighbors.m_size; ++i)
 		{
-			if(m_cellsArray[m_leftNeighbors.m_data[i]]->m_CAState == m_CAState)
+			if(m_cellsArray[m_leftNeighbors.m_data[i]].m_CAState == m_CAState)
 			{
 				hasFriends = true;
 				break;
