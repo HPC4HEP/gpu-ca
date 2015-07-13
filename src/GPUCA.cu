@@ -66,7 +66,7 @@ bool isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const in
 // this will become a global kernel in the offline CA
 template< int maxNumLayersInPacket,int maxCellsNum, int warpSize >
 __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ hits,
-		CUDAQueue<maxCellsNum, Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum> >* outputCells, int hitId )
+		CUDAQueue<maxCellsNum, Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum> >* outputCells, CUDAQueue<maxCellsPerLayer, int >* outputCellsIdOnLayer, int hitId )
 {
 	auto threadInWarpIdx = threadIdx.x%32;
 	auto layerId = hits[hitId].layerId;
@@ -81,7 +81,8 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 
 			if(isADoublet(hits, hitId, targetHitId))
 			{
-				auto cellId = outputCells[layerId].push(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>(hitId, targetHitId, layerId, outputCells[layerId].m_data));
+				auto cellId = outputCells.push(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>(hitId, targetHitId, layerId, outputCells.m_data));
+				outputCellsIdOnLayer[layerId].push(cellId);
 				if(cellId == -1)
 					break;
 
@@ -94,13 +95,15 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 }
 
 
-template <int maxNumLayersInPacket, int maxCellsNum, int maxNeighborsNumPerCell, int doubletParametersNum, int warpSize>
+template <int maxNumLayersInPacket, int maxCellsPerLayer, int maxNeighborsNumPerCell, int doubletParametersNum, int warpSize>
 __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ packetPayload, Cell<maxNeighborsNumPerCell, doubletParametersNum>* outputCells )
 {
 	auto warpIdx = (blockDim.x*blockIdx.x + threadIdx.x)/warpSize;
 	auto warpNum = blockDim.x/warpSize;
 	auto threadInWarpIdx = threadIdx.x%warpSize;
-	__shared__ CUDAQueue<maxCellsNum, Cell<maxNeighborsNumPerCell, doubletParametersNum> > foundCells[maxNumLayersInPacket];
+	constexpr const auto maxCellsNum = maxCellsPerLayer*maxNumLayersInPacket;
+	__shared__ CUDAQueue<maxCellsNum, Cell<maxNeighborsNumPerCell, doubletParametersNum> > foundCells;
+	__shared__ CUDAQueue<maxCellsPerLayer, int > cellsOnLayer[maxNumLayersInPacket];
 
 	//We will now create cells with the inner hit on each layer except the last one, which does not have a layer next to it.
 	auto numberOfOriginHitsInInnerLayers = packetHeader->firstHitIdOnLayer[packetHeader->numLayers-1];
@@ -112,10 +115,9 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		auto hitIdx = warpIdx + warpNum*i;
 		if(hitIdx < numberOfOriginHitsInInnerLayers)
 		{
-			makeCells< maxNumLayersInPacket, maxCellsNum, warpSize > (packetHeader, packetPayload, foundCells, hitIdx);
+			makeCells< maxNumLayersInPacket, maxCellsNum, warpSize > (packetHeader, packetPayload, foundCells, cellsOnLayer, hitIdx);
+
 		}
-
-
 
 	}
 	__syncthreads();
@@ -147,16 +149,14 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 
 	// now that we have the cells, it is time to match them and find neighboring cells
 
-	int warpsPerLayer =  warpNum/(packetHeader->numLayers -1);
-	int layerId = warpIdx/warpsPerLayer;
-	int threadsPerLayer = warpsPerLayer * warpSize;
-	auto neighborFindingNumSteps = (foundCells[layerId].m_size + threadsPerLayer - 1) / threadsPerLayer;
+
+	auto neighborFindingNumSteps = (foundCells.m_size + blockDim.x - 1) / blockDim.x;
 	for (auto i = 0; i < neighborFindingNumSteps; ++i)
 	{
-		auto cellIdx = (threadInWarpIdx + warpSize*(warpIdx % warpsPerLayer)) + i*threadsPerLayer;
-		if(cellIdx < foundCells[layerId].m_size && layerId < packetHeader->numLayers-1)
+		auto cellIdx = threadIdx + i*blockDim.x;
+		if(cellIdx < foundCells.m_size && foundCells.m_data[cellIdx].m_layerId < packetHeader->numLayers -1)
 		{
-			foundCells[layerId].m_data[cellIdx].neighborSearch(foundCells[layerId+1]);
+			foundCells.m_data[cellIdx].neighborSearch(cellsOnLayer[foundCells.m_data[cellIdx].m_layerId+1]);
 		}
 
 	}
