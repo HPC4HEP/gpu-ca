@@ -16,7 +16,6 @@
 
 
 // Maximum relative difference (par1_A - par1_B)/par1_A for each parameters
-constexpr float c_maxParAbsDifference[]{0.1, 0.1, 0.1};
 constexpr int c_numParameters = sizeof(c_maxParAbsDifference)/sizeof(c_maxParAbsDifference[0]);
 
 // maxSize is the maximum number of neighbors that a Cell can have
@@ -33,6 +32,8 @@ public:
 	__inline__
 	__device__ int neighborSearch(const CUDAQueue<queueMaxSize, int>& rightCells)
 	{
+		constexpr float c_maxParAbsDifference[]{0.1, 0.1, 0.1};
+
 		int neighborNum = 0;
 
 		for (auto i= 0; i < rightCells.m_size; ++i)
