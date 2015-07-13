@@ -74,6 +74,10 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 		{
 			if(isADoublet(hits, hitId, targetHitId))
 			{
+				 printf("threadInWarpIdx = %d layerId = %d firstHitIdOnNextLayer = %d numHitsOnNextLayer = %d "
+				    			 "targetHitId %d \n", threadInWarpIdx, layerId,
+								 firstHitIdOnNextLayer, numHitsOnNextLayer, targetHitId);
+
 				auto cellId = outputCells.push(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>(hitId, targetHitId, layerId, outputCells.m_data));
 				if(cellId == -1)
 					break;
