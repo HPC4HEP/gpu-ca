@@ -64,9 +64,9 @@ bool isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const in
 
 
 // this will become a global kernel in the offline CA
-template< int maxNumLayersInPacket,int maxCellsNum, int warpSize >
+template< int maxNumLayersInPacket,int maxCellsPerLayer, int warpSize >
 __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ hits,
-		CUDAQueue<maxCellsNum, Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum> >* outputCells, CUDAQueue<maxCellsPerLayer, int >* outputCellsIdOnLayer, int hitId )
+		CUDAQueue<maxNumLayersInPacket*maxCellsPerLayer, Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum> >* outputCells, CUDAQueue<maxCellsPerLayer, int >* outputCellsIdOnLayer, int hitId )
 {
 	auto threadInWarpIdx = threadIdx.x%32;
 	auto layerId = hits[hitId].layerId;
@@ -115,7 +115,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		auto hitIdx = warpIdx + warpNum*i;
 		if(hitIdx < numberOfOriginHitsInInnerLayers)
 		{
-			makeCells< maxNumLayersInPacket, maxCellsNum, warpSize > (packetHeader, packetPayload, foundCells, cellsOnLayer, hitIdx);
+			makeCells< maxNumLayersInPacket, maxCellsPerLayer, warpSize > (packetHeader, packetPayload, foundCells, cellsOnLayer, hitIdx);
 
 		}
 
@@ -153,7 +153,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	auto neighborFindingNumSteps = (foundCells.m_size + blockDim.x - 1) / blockDim.x;
 	for (auto i = 0; i < neighborFindingNumSteps; ++i)
 	{
-		auto cellIdx = threadIdx + i*blockDim.x;
+		auto cellIdx = threadIdx.x + i*blockDim.x;
 		if(cellIdx < foundCells.m_size && foundCells.m_data[cellIdx].m_layerId < packetHeader->numLayers -1)
 		{
 			foundCells.m_data[cellIdx].neighborSearch(cellsOnLayer[foundCells.m_data[cellIdx].m_layerId+1]);
