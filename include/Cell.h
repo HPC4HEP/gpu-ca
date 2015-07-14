@@ -88,7 +88,7 @@ public:
 	__device__
 	bool areCompatible(const Cell& a, const Cell& root)
 	{
-		const float c_maxParAbsDifference[parNum]= {0.1, 0.1};
+		const float c_maxParAbsDifference[parNum]= {0.5, 0.5};
 
 		for (auto j =0; j < a.m_params.m_size; ++j )
 		{

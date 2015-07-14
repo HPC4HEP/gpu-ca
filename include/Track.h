@@ -13,7 +13,7 @@
 #include "CUDAQueue.h"
 
 
-constexpr int c_minHitsPerTrack = 4;
+constexpr int c_minHitsPerTrack = 3;
 
 template<int maxHitsNum>
 class Track {

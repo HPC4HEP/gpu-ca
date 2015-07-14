@@ -56,7 +56,7 @@ bool isADoublet(const SimpleHit* __restrict__ hits, const int idOrigin, const in
 	//	float relPhiDiff = 2*fabs((hits[idOrigin].phi - hits[idTarget].phi)/(hits[idOrigin].phi+hits[idTarget].phi));
 	//	if(relPhiDiff > maxDoubletRelDifference[1]) return false;
 
-	float maxDoubletAbsDifference[]{0.1, 0.1};
+	float maxDoubletAbsDifference[]{0.5, 0.5};
 	float relEtaDiff = fabs(hits[idOrigin].eta - hits[idTarget].eta);
 	if(relEtaDiff > maxDoubletAbsDifference[0]) return false;
 	float relPhiDiff = fabs(hits[idOrigin].phi - hits[idTarget].phi);
