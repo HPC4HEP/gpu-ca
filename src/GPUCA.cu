@@ -176,8 +176,8 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	}
 	__syncthreads();
 
-
-	for(auto l = 0; l < packetHeader->numLayers; ++l)
+	auto CAevolutionIterationsNum = packetHeader->numLayers - 2;
+	for(auto l = 0; l < CAevolutionIterationsNum; ++l)
 	{
 		for (auto i = 0; i < cellsLoopingNumSteps; ++i)
 		{
