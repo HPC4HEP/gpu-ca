@@ -127,9 +127,9 @@ public:
 				if(areCompatible(m_cellsArray[m_rightNeighbors.m_data[i]], m_cellsArray[tmpTrack.m_cells.m_data[0]]) )
 				{
 					hasOneCompatibleNeighbor = true;
-					tmpTrack.m_cells.push(m_rightNeighbors.m_data[i]);
+					tmpTrack.m_cells.push_singleThread(m_rightNeighbors.m_data[i]);
 					m_cellsArray[m_rightNeighbors.m_data[i]].findTracks<maxTracksNum, maxHitsNum>(foundTracks, tmpTrack);
-					tmpTrack.m_cells.pop_back();
+					tmpTrack.m_cells.pop_back_singleThread();
 
 				}
 

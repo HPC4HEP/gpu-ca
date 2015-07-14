@@ -36,8 +36,7 @@ struct CUDAQueue
 	__inline__ __device__
 	int push_singleThread(const T& element) {
 
-		auto previousSize = m_size;
-		m_size++;
+		auto previousSize = m_size++;
 		if(previousSize<maxSize)
 		{
 			m_data[previousSize] = element;
@@ -57,7 +56,16 @@ struct CUDAQueue
 
 	};
 
+	__inline__ __device__
+	T pop_back_singleThread() {
+		if(m_size > 0)
+		{
+			auto previousSize = m_size--;
+			return m_data[previousSize];
+		}
 
+
+	};
 	__inline__ __device__
 	bool insertArray(T* array, int numElements)
 	{
