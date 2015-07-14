@@ -195,6 +195,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		{
 
 			foundCells.m_data[cellIdx].findTracks(foundTracks,tmpTrack);
+			printf("hola");
 
 		}
 //
