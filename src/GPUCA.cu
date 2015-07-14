@@ -173,7 +173,8 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 			{
 
 				auto printstate= foundCells.m_data[cellIdx].evolve();
-				printf("cell %d on layer:%d innerHitId:%d state: %d \n", cellIdx,foundCells.m_data[cellIdx].m_layerId, foundCells.m_data[cellIdx].m_innerHitId,printstate);
+				printf("cell %d on layer:%d innerHitId:%d outerHitId:%d state: %d \n",
+						cellIdx,foundCells.m_data[cellIdx].m_layerId, foundCells.m_data[cellIdx].m_innerHitId, foundCells.m_data[cellIdx].m_outerHitId, printstate);
 			}
 
 
