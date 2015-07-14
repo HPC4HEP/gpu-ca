@@ -175,7 +175,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 			{
 
 				auto printstate= foundCells.m_data[cellIdx].evolve();
-				printf("hey cell %d state: %d", cellIdx,printstate);
+				printf("hey cell %d state: %d \n", cellIdx,printstate);
 			}
 
 		}
