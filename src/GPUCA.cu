@@ -162,7 +162,6 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		}
 
 	}
-	printf("yuhu!");
 	__syncthreads();
 	for (auto l = 0; l < packetHeader->numLayers; ++l)
 	{
@@ -233,7 +232,7 @@ int main()
 	constexpr auto numHitsPerLayer = 7;
 
 	srand (time(NULL));
-	//	srand(42);
+	srand(42);
 	std::pair<float, float> range_eta(0.1, 0.3);
 	std::pair<float, float> range_phi(0.4, 0.6);
 
