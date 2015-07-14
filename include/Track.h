@@ -18,7 +18,7 @@ constexpr int c_minHitsPerTrack = 4;
 template<int maxHitsNum>
 class Track {
 public:
-	__host__ __device__ Track() { }
+	__host__ __device__ Track(): m_cells() { }
 
 // track constructor should be passed the pointer of the root Cell
 	//
