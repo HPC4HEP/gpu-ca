@@ -185,8 +185,8 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 
 
 	auto cellsOnInnermostLayer = (cellsOnLayer[0].m_size + blockDim.x - 1) / blockDim.x;
-//	for (auto i = 0; i < cellsLoopingNumSteps; ++i)
-//	{
+	for (auto i = 0; i < cellsOnInnermostLayer; ++i)
+	{
 //
 //		auto cellIdx = threadIdx.x + i*blockDim.x;
 //		Track<maxHitsNum> tmpTrack;
@@ -198,7 +198,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 //
 //		}
 //
-//	}
+	}
 //
 //	__syncthreads();
 
