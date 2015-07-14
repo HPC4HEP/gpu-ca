@@ -167,8 +167,9 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		if(cellIdx < foundCells.m_size && foundCells.m_data[cellIdx].m_layerId < packetHeader->numLayers -1)
 		{
 			foundCells.m_data[cellIdx].neighborSearch(cellsOnLayer[foundCells.m_data[cellIdx].m_layerId+1]);
-			printf("cell %d m_id %d on layer:%d num rightneighbours: %d first 3: %d %d %d \n",cellIdx, foundCells.m_data[cellIdx].m_id,foundCells.m_data[cellIdx].m_layerId, foundCells.m_data[cellIdx].m_rightNeighbors.m_size,
-					foundCells.m_data[cellIdx].m_rightNeighbors.m_data[0],foundCells.m_data[cellIdx].m_rightNeighbors.m_data[1],foundCells.m_data[cellIdx].m_rightNeighbors.m_data[2] );
+			printf("cell %d m_id %d on layer:%d num rightneighbours: %d first 3: %d %d %d  num leftneighbours: %d first 3:\n",cellIdx, foundCells.m_data[cellIdx].m_id,foundCells.m_data[cellIdx].m_layerId, foundCells.m_data[cellIdx].m_rightNeighbors.m_size,
+					foundCells.m_data[cellIdx].m_rightNeighbors.m_data[0],foundCells.m_data[cellIdx].m_rightNeighbors.m_data[1],foundCells.m_data[cellIdx].m_rightNeighbors.m_data[2],foundCells.m_data[cellIdx].m_leftNeighbors.m_size,
+					foundCells.m_data[cellIdx].m_leftNeighbors.m_data[0],foundCells.m_data[cellIdx].m_leftNeighbors.m_data[1],foundCells.m_data[cellIdx].m_leftNeighbors.m_data[2] );
 
 		}
 
