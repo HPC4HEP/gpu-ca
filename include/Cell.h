@@ -24,7 +24,7 @@ class Cell
 {
 public:
 	__host__ __device__ Cell() : m_CAState(0), m_id(0), m_innerHitId(0), m_outerHitId(0), m_cellsArray(0), m_layerId(0) { }
-	__host__ __device__ Cell(int innerHitId, int outerHitId, int layerId, Cell* cellsArray) : m_CAState(0), m_id(this - cellsArray), m_innerHitId(innerHitId), m_outerHitId(outerHitId), m_cellsArray(cellsArray), m_layerId(layerId) { }
+	__host__ __device__ Cell(int innerHitId, int outerHitId, int layerId, Cell* cellsArray) : m_CAState(0), m_innerHitId(innerHitId), m_outerHitId(outerHitId), m_cellsArray(cellsArray), m_layerId(layerId) { }
 
 	template< int queueMaxSize>
 	__inline__

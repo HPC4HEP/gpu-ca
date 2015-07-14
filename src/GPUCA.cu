@@ -87,6 +87,7 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 				auto cellId = outputCells.push(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>(hitId, targetHitId, layerId, outputCells.m_data));
 				if(cellId == -1)
 					break;
+				outputCells.m_data[cellId].m_id = cellId;
 				outputCellsIdOnLayer[layerId].push(cellId);
 
 //				printf("cellId pushed: %d, size of outputCells:%d \n", cellId, outputCells.m_size);
