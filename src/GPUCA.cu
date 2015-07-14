@@ -184,7 +184,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 // only 1 thread per cell on the first layer will now look for tracks
 
 
-//	auto cellsOnInnerLayer = (cellsOnLayer[0].m_size + blockDim.x - 1) / blockDim.x;
+	auto cellsOnInnermostLayer = (cellsOnLayer[0].m_size + blockDim.x - 1) / blockDim.x;
 //	for (auto i = 0; i < cellsLoopingNumSteps; ++i)
 //	{
 //
