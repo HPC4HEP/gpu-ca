@@ -166,9 +166,11 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	__syncthreads();
 	for (auto l = 0; l < packetHeader->numLayers; ++l)
 	{
+		printf("hey cell %d state: %d", cellIdx,printstate);
 
 		for (auto i = 0; i < cellsLoopingNumSteps; ++i)
 		{
+
 			auto cellIdx = threadIdx.x + i*blockDim.x;
 			if(cellIdx < foundCells.m_size)
 			{
