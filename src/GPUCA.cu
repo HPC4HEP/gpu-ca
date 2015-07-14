@@ -97,9 +97,6 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 	}
 
 
-	__syncthreads();
-	if(threadIdx.x ==0)
-		printf("size of outputCells:%d \n", outputCells.m_size);
 
 }
 
@@ -131,6 +128,9 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 
 	}
 	__syncthreads();
+	__syncthreads();
+	if(threadIdx.x ==0)
+		printf("size of outputCells:%d \n", foundCells.m_size);
 
 
 	//	auto copyOutputCellsSteps = (foundCells[0].m_size + blockDim.x - 1) / blockDim.x;
