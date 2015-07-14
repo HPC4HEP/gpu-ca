@@ -173,7 +173,8 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 			if(cellIdx < foundCells.m_size)
 			{
 
-				foundCells.m_data[cellIdx].evolve();
+				auto printstate= foundCells.m_data[cellIdx].evolve();
+				printf("hey cell %d state: %d", cellIdx,printstate);
 			}
 
 		}

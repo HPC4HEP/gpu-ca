@@ -65,7 +65,7 @@ public:
 
 	// if there is at least one left neighbor with the same state (friend), the state has to be increased by 1.
 	__inline__
-	__device__ void evolve() {
+	__device__ int evolve() {
 		auto hasFriends = false;
 		for(auto i =0; i < m_leftNeighbors.m_size; ++i)
 		{
@@ -79,8 +79,8 @@ public:
 		if(hasFriends)
 		{
 			m_CAState++;
-			printf("hey\n");
 		}
+		return m_CAState;
 
 	}
 
