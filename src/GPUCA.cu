@@ -90,7 +90,7 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 				outputCells.m_data[cellId].m_id = cellId;
 				outputCellsIdOnLayer[layerId].push(cellId);
 
-//				printf("cellId pushed: %d, size of outputCells:%d \n", cellId, outputCells.m_size);
+				//				printf("cellId pushed: %d, size of outputCells:%d \n", cellId, outputCells.m_size);
 			}
 
 		}
@@ -167,9 +167,9 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		if(cellIdx < foundCells.m_size && foundCells.m_data[cellIdx].m_layerId < packetHeader->numLayers -1)
 		{
 			foundCells.m_data[cellIdx].neighborSearch(cellsOnLayer[foundCells.m_data[cellIdx].m_layerId+1]);
-			printf("cell %d m_id %d on layer:%d num rightneighbours: %d first 3: %d %d %d  num leftneighbours: %d first 3:%d %d %d\n",cellIdx, foundCells.m_data[cellIdx].m_id,foundCells.m_data[cellIdx].m_layerId, foundCells.m_data[cellIdx].m_rightNeighbors.m_size,
-					foundCells.m_data[cellIdx].m_rightNeighbors.m_data[0],foundCells.m_data[cellIdx].m_rightNeighbors.m_data[1],foundCells.m_data[cellIdx].m_rightNeighbors.m_data[2],foundCells.m_data[cellIdx].m_leftNeighbors.m_size,
-					foundCells.m_data[cellIdx].m_leftNeighbors.m_data[0],foundCells.m_data[cellIdx].m_leftNeighbors.m_data[1],foundCells.m_data[cellIdx].m_leftNeighbors.m_data[2] );
+			//			printf("cell %d m_id %d on layer:%d num rightneighbours: %d first 3: %d %d %d  num leftneighbours: %d first 3:%d %d %d\n",cellIdx, foundCells.m_data[cellIdx].m_id,foundCells.m_data[cellIdx].m_layerId, foundCells.m_data[cellIdx].m_rightNeighbors.m_size,
+			//					foundCells.m_data[cellIdx].m_rightNeighbors.m_data[0],foundCells.m_data[cellIdx].m_rightNeighbors.m_data[1],foundCells.m_data[cellIdx].m_rightNeighbors.m_data[2],foundCells.m_data[cellIdx].m_leftNeighbors.m_size,
+			//					foundCells.m_data[cellIdx].m_leftNeighbors.m_data[0],foundCells.m_data[cellIdx].m_leftNeighbors.m_data[1],foundCells.m_data[cellIdx].m_leftNeighbors.m_data[2] );
 
 		}
 
@@ -177,9 +177,10 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	__syncthreads();
 
 
-
-	for (auto i = 0; i < cellsLoopingNumSteps; ++i)
+	for(auto l = 0; l < packetHeader->numLayers; ++l)
 	{
+		for (auto i = 0; i < cellsLoopingNumSteps; ++i)
+		{
 			auto cellIdx = threadIdx.x + i*blockDim.x;
 			if(cellIdx < foundCells.m_size)
 			{
@@ -190,13 +191,13 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 			}
 
 
+		}
+		__syncthreads();
 	}
-	__syncthreads();
+
 
 
 	// only 1 thread per cell on the first layer will now look for tracks
-
-
 	auto cellsOnInnermostLayer = (cellsOnLayer[0].m_size + blockDim.x - 1) / blockDim.x;
 	for (auto i = 0; i < cellsOnInnermostLayer; ++i)
 	{
@@ -308,14 +309,14 @@ int main()
 
 	cudaStreamSynchronize(0);
 
-//	for (auto i = 0; i<c_maxTracksNum; ++i)
-//	{
-//		std::cout << "hits in track:" << host_outputTracks[i].m_cells.m_size << std::endl;
-//		for (auto j = 0; j<c_maxHitsNumPerTrack ; ++j)
-//		{
-//			std::cout << "\t hit " << j << " : " << host_outputTracks[i].m_cells.m_data[j] << std::endl;
-//		}
-//	}
+	//	for (auto i = 0; i<c_maxTracksNum; ++i)
+	//	{
+	//		std::cout << "hits in track:" << host_outputTracks[i].m_cells.m_size << std::endl;
+	//		for (auto j = 0; j<c_maxHitsNumPerTrack ; ++j)
+	//		{
+	//			std::cout << "\t hit " << j << " : " << host_outputTracks[i].m_cells.m_data[j] << std::endl;
+	//		}
+	//	}
 
 	cudaFreeHost(host_packetHeader);
 	cudaFree(device_Packet);
