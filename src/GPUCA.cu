@@ -162,11 +162,11 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		}
 
 	}
-
+	printf("yuhu!");
 	__syncthreads();
 	for (auto l = 0; l < packetHeader->numLayers; ++l)
 	{
-		printf("yuhu!");
+
 
 		for (auto i = 0; i < cellsLoopingNumSteps; ++i)
 		{
