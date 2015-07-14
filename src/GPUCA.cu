@@ -89,7 +89,7 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 					break;
 				outputCellsIdOnLayer[layerId].push(cellId);
 
-				printf("cellId pushed: %d\n", cellId);
+				printf("cellId pushed: %d, size of outputCells:%d \n", cellId, outputCells.m_size);
 			}
 
 		}
