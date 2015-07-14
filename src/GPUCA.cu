@@ -163,13 +163,11 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 
 	}
 	__syncthreads();
-	for (auto l = 0; l < packetHeader->numLayers; ++l)
+
+
+
+	for (auto i = 0; i < cellsLoopingNumSteps; ++i)
 	{
-
-
-		for (auto i = 0; i < cellsLoopingNumSteps; ++i)
-		{
-
 			auto cellIdx = threadIdx.x + i*blockDim.x;
 			if(cellIdx < foundCells.m_size)
 			{
@@ -178,19 +176,18 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 				printf("cell %d on layer:%d innerHitId:%d state: %d \n", cellIdx,foundCells.m_data[cellIdx].m_layerId, foundCells.m_data[cellIdx].m_innerHitId,printstate);
 			}
 
-		}
 
 	}
 	__syncthreads();
 
 
-// only 1 thread per cell on the first layer will now look for tracks
+	// only 1 thread per cell on the first layer will now look for tracks
 
 
 	auto cellsOnInnermostLayer = (cellsOnLayer[0].m_size + blockDim.x - 1) / blockDim.x;
 	for (auto i = 0; i < cellsOnInnermostLayer; ++i)
 	{
-//
+		//
 		auto cellIdx = threadIdx.x + i*blockDim.x;
 		Track<maxHitsNum> tmpTrack;
 		tmpTrack.m_cells.push_singleThread(cellIdx);
@@ -201,21 +198,21 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 			foundCells.m_data[cellIdx].findTracks(foundTracks,tmpTrack);
 
 		}
-//
+		//
 	}
-//
+	//
 	__syncthreads();
 
 	auto tracksSteps = (foundTracks.m_size + blockDim.x - 1) / blockDim.x;
 	for (auto i = 0; i < tracksSteps; ++i)
 	{
-//
+		//
 		auto trackIdx = threadIdx.x + i*blockDim.x;
 		if(trackIdx < foundTracks.m_size)
 		{
 			outputTracks[trackIdx] = foundTracks.m_data[trackIdx];
 		}
-//
+		//
 	}
 
 
@@ -300,11 +297,11 @@ int main()
 
 	for (auto i = 0; i<c_maxTracksNum; ++i)
 	{
-			std::cout << "hits in track:" << host_outputTracks[i].m_cells.m_size << std::endl;
-			for (auto j = 0; j<c_maxHitsNumPerTrack ; ++j)
-			{
-				std::cout << "\t hit " << j << " : " << host_outputTracks[i].m_cells.m_data[j] << std::endl;
-			}
+		std::cout << "hits in track:" << host_outputTracks[i].m_cells.m_size << std::endl;
+		for (auto j = 0; j<c_maxHitsNumPerTrack ; ++j)
+		{
+			std::cout << "\t hit " << j << " : " << host_outputTracks[i].m_cells.m_data[j] << std::endl;
+		}
 	}
 
 	cudaFreeHost(host_packetHeader);
