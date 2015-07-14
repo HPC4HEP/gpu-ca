@@ -186,8 +186,8 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 			{
 
 				auto printstate= foundCells.m_data[cellIdx].evolve();
-				printf("cell %d on layer:%d innerHitId:%d outerHitId:%d state: %d \n",
-						cellIdx,foundCells.m_data[cellIdx].m_layerId, foundCells.m_data[cellIdx].m_innerHitId, foundCells.m_data[cellIdx].m_outerHitId, printstate);
+//				printf("cell %d on layer:%d innerHitId:%d outerHitId:%d state: %d \n",
+//						cellIdx,foundCells.m_data[cellIdx].m_layerId, foundCells.m_data[cellIdx].m_innerHitId, foundCells.m_data[cellIdx].m_outerHitId, printstate);
 			}
 
 
@@ -309,14 +309,14 @@ int main()
 
 	cudaStreamSynchronize(0);
 
-	//	for (auto i = 0; i<c_maxTracksNum; ++i)
-	//	{
-	//		std::cout << "hits in track:" << host_outputTracks[i].m_cells.m_size << std::endl;
-	//		for (auto j = 0; j<c_maxHitsNumPerTrack ; ++j)
-	//		{
-	//			std::cout << "\t hit " << j << " : " << host_outputTracks[i].m_cells.m_data[j] << std::endl;
-	//		}
-	//	}
+		for (auto i = 0; i<c_maxTracksNum; ++i)
+		{
+			std::cout << "hits in track:" << host_outputTracks[i].m_cells.m_size << std::endl;
+			for (auto j = 0; j<c_maxHitsNumPerTrack ; ++j)
+			{
+				std::cout << "\t hit " << j << " : " << host_outputTracks[i].m_cells.m_data[j] << std::endl;
+			}
+		}
 
 	cudaFreeHost(host_packetHeader);
 	cudaFree(device_Packet);
