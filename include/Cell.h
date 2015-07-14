@@ -77,7 +77,11 @@ public:
 		}
 		__syncthreads();
 		if(hasFriends)
+		{
 			m_CAState++;
+			printf("hey\n");
+		}
+
 	}
 
 
