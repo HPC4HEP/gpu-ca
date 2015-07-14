@@ -121,6 +121,7 @@ public:
 				return;
 		}
 		else{
+			printf("hola");
 			bool hasOneCompatibleNeighbor = false;
 			for( auto i=0 ; i < m_rightNeighbors.m_size; ++i)
 			{
