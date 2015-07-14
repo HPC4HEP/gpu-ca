@@ -295,10 +295,14 @@ int main()
 
 	cudaStreamSynchronize(0);
 
-	//	for (auto i = 0; i<c_maxCellsNumPerLayer*numLayers; ++i)
-	//	{
-	//		std::cout << host_outputTracks->m_id << " " << host_outputTracks->m_layerId << " " << host_outputTracks->m_innerHitId << std::endl;
-	//	}
+	for (auto i = 0; i<c_maxTracksNum; ++i)
+	{
+			std::cout << "hits in track:" << host_outputTracks[i].m_cells.m_size << std::endl;
+			for (auto j = 0; j<host_outputTracks[i].m_cells.m_size ; ++j)
+			{
+				std::cout << "\t hit " << j << " : " << host_outputTracks[i].m_cells.m_data[j] << std::endl;
+			}
+	}
 
 	cudaFreeHost(host_packetHeader);
 	cudaFree(device_Packet);
