@@ -96,6 +96,10 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 
 	}
 
+
+	__syncthreads();
+	printf("size of outputCells:%d \n", outputCells.m_size);
+
 }
 
 
