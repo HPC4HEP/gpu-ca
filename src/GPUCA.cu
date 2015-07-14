@@ -190,11 +190,11 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 
 		auto cellIdx = threadIdx.x + i*blockDim.x;
 		Track<maxHitsNum> tmpTrack;
-		tmpTrack.m_cells.push(cellIdx);
+//		tmpTrack.m_cells.push(cellIdx);
 		if(cellIdx < cellsOnLayer[0].m_size)
 		{
 
-//			foundCells.m_data[cellIdx].findTracks(foundTracks,tmpTrack);
+			foundCells.m_data[cellIdx].findTracks(foundTracks,tmpTrack);
 
 		}
 
