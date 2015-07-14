@@ -41,13 +41,13 @@ public:
 				continue;
 			bool isNeighbor = true;
 
-			for (auto j =0; j < m_params.m_size; ++j )
-			{
-				isNeighbor = isNeighbor & (fabs((m_params.m_data[j] - m_cellsArray[rightCells.m_data[i]].m_params.m_data[j]))  < c_maxParAbsDifference[j]);
-				if(!isNeighbor)
-					break;
-
-			}
+//			for (auto j =0; j < m_params.m_size; ++j )
+//			{
+////				isNeighbor = isNeighbor & (fabs((m_params.m_data[j] - m_cellsArray[rightCells.m_data[i]].m_params.m_data[j]))  < c_maxParAbsDifference[j]);
+//				if(!isNeighbor)
+//					break;
+//
+//			}
 
 			// if all the parameters are inside the range the right cell is a right neighbor.
 			// viceversa this cell will be the left neighbors for rightNeighbor(i)
