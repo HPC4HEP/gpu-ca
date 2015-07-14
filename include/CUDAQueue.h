@@ -23,7 +23,7 @@ struct CUDAQueue
 	__inline__ __device__
 	int push(const T& element) {
 
-		auto previousSize = atomicAdd (&m_size, 1);
+		auto previousSize = atomicAdd(&m_size, 1);
 		if(previousSize<maxSize)
 		{
 			m_data[previousSize] = element;
