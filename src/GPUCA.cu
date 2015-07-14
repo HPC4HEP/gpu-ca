@@ -83,11 +83,13 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 
 			if(isADoublet(hits, hitId, targetHitId))
 			{
+
 				auto cellId = outputCells.push(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>(hitId, targetHitId, layerId, outputCells.m_data));
-				outputCellsIdOnLayer[layerId].push(cellId);
 				if(cellId == -1)
 					break;
+				outputCellsIdOnLayer[layerId].push(cellId);
 
+				printf("cellId pushed: %d", cellId);
 			}
 
 		}
