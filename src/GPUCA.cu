@@ -241,12 +241,12 @@ int main()
 	PacketHeader<c_maxNumberOfLayersInPacket>* device_Packet;
 	auto packetSize = sizeof(PacketHeader<c_maxNumberOfLayersInPacket>) + hitsVector.size()*sizeof(SimpleHit);
 
-	Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>* device_outputCells;
-	Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>* host_outputCells;
+	Track<c_maxHitsNumPerTrack>* device_outputTracks;
+	Track<c_maxHitsNumPerTrack>* host_outputTracks;
 	cudaMallocHost((void**)&host_packetHeader, packetSize);
 	cudaMalloc((void**)&device_Packet, packetSize);
-	cudaMalloc((void**)&device_outputCells, c_maxCellsNumPerLayer*numLayers*sizeof(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>));
-	cudaMallocHost((void**)&host_outputCells, c_maxCellsNumPerLayer*numLayers*sizeof(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>));
+	cudaMalloc((void**)&device_outputTracks, c_maxTracksNum*sizeof(Track<c_maxHitsNumPerTrack>));
+	cudaMallocHost((void**)&host_outputTracks, c_maxTracksNum*sizeof(Track<c_maxHitsNumPerTrack>));
 
 	SimpleHit* host_packetPayload = (SimpleHit*)((char*)host_packetHeader + sizeof(PacketHeader<c_maxNumberOfLayersInPacket>));
 
@@ -274,18 +274,18 @@ int main()
 	}
 	cudaMemcpyAsync(device_Packet, host_packetHeader, packetSize, cudaMemcpyHostToDevice, 0);
 
-	singleBlockCA<c_maxNumberOfLayersInPacket, c_maxCellsNumPerLayer,c_maxNeighborsNumPerCell, c_doubletParametersNum,c_maxHitsNumPerTrack,c_maxTracksNum, 32><<<1,1024,0,0>>>(device_Packet, (SimpleHit*)((char*)device_Packet+sizeof(PacketHeader<c_maxNumberOfLayersInPacket>)),device_outputCells);
+	singleBlockCA<c_maxNumberOfLayersInPacket, c_maxCellsNumPerLayer,c_maxNeighborsNumPerCell, c_doubletParametersNum,c_maxHitsNumPerTrack,c_maxTracksNum, 32><<<1,1024,0,0>>>(device_Packet, (SimpleHit*)((char*)device_Packet+sizeof(PacketHeader<c_maxNumberOfLayersInPacket>)),device_outputTracks);
 
 
 
-	cudaMemcpyAsync(host_outputCells, device_outputCells, c_maxCellsNumPerLayer*numLayers*sizeof(Cell<c_maxNeighborsNumPerCell, c_doubletParametersNum>), cudaMemcpyDeviceToHost, 0);
+	cudaMemcpyAsync(host_outputTracks, device_outputTracks, c_maxTracksNum*sizeof(Track<c_maxHitsNumPerTrack>), cudaMemcpyDeviceToHost, 0);
 
 
 	cudaStreamSynchronize(0);
 
 	//	for (auto i = 0; i<c_maxCellsNumPerLayer*numLayers; ++i)
 	//	{
-	//		std::cout << host_outputCells->m_id << " " << host_outputCells->m_layerId << " " << host_outputCells->m_innerHitId << std::endl;
+	//		std::cout << host_outputTracks->m_id << " " << host_outputTracks->m_layerId << " " << host_outputTracks->m_innerHitId << std::endl;
 	//	}
 
 	cudaFreeHost(host_packetHeader);
