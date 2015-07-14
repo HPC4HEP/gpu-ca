@@ -32,6 +32,20 @@ struct CUDAQueue
 			return -1;
 	};
 
+
+	__inline__ __device__
+	int push_singleThread(const T& element) {
+
+		auto previousSize = m_size;
+		m_size++;
+		if(previousSize<maxSize)
+		{
+			m_data[previousSize] = element;
+			return previousSize;
+		} else
+			return -1;
+	};
+
 	__inline__ __device__
 	T pop_back() {
 		if(m_size > 0)
