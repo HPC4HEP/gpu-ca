@@ -22,8 +22,8 @@
 constexpr float c_maxDoubletRelDifference[]{0.1, 0.05};
 constexpr float c_maxDoubletAbsDifference[]{0.1, 0.1};
 constexpr int c_doubletParametersNum = sizeof(c_maxDoubletRelDifference)/sizeof(c_maxDoubletRelDifference[0]);
-constexpr int c_maxCellsNumPerLayer  = 32;
-constexpr int c_maxNeighborsNumPerCell = 4;
+constexpr int c_maxCellsNumPerLayer  = 64;
+constexpr int c_maxNeighborsNumPerCell = 6;
 constexpr int c_maxHitsNumPerTrack = 5;
 constexpr int c_maxTracksNum = 32;
 
@@ -232,7 +232,6 @@ int main()
 	constexpr auto numHitsPerLayer = 7;
 
 	srand (time(NULL));
-	srand(42);
 	std::pair<float, float> range_eta(0.1, 0.3);
 	std::pair<float, float> range_phi(0.4, 0.6);
 
