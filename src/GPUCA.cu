@@ -229,8 +229,8 @@ int main()
 	constexpr auto numHitsPerLayer = 7;
 
 	srand (time(NULL));
-	std::pair<float, float> range_eta(0.1, 0.3);
-	std::pair<float, float> range_phi(0.4, 0.6);
+	std::pair<float, float> range_eta(0.1, 0.11);
+	std::pair<float, float> range_phi(0.4, 0.41);
 
 	std::vector<SimpleHit> hitsVector(numLayers*numHitsPerLayer);
 
