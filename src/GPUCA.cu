@@ -184,23 +184,23 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 // only 1 thread per cell on the first layer will now look for tracks
 
 
-	auto cellsOnInnerLayer = (cellsOnLayer[0].m_size + blockDim.x - 1) / blockDim.x;
-	for (auto i = 0; i < cellsLoopingNumSteps; ++i)
-	{
-
-		auto cellIdx = threadIdx.x + i*blockDim.x;
-		Track<maxHitsNum> tmpTrack;
-//		tmpTrack.m_cells.push(cellIdx);
-		if(cellIdx < cellsOnLayer[0].m_size)
-		{
-
-			foundCells.m_data[cellIdx].findTracks(foundTracks,tmpTrack);
-
-		}
-
-	}
-
-	__syncthreads();
+//	auto cellsOnInnerLayer = (cellsOnLayer[0].m_size + blockDim.x - 1) / blockDim.x;
+//	for (auto i = 0; i < cellsLoopingNumSteps; ++i)
+//	{
+//
+//		auto cellIdx = threadIdx.x + i*blockDim.x;
+//		Track<maxHitsNum> tmpTrack;
+////		tmpTrack.m_cells.push(cellIdx);
+//		if(cellIdx < cellsOnLayer[0].m_size)
+//		{
+//
+//			foundCells.m_data[cellIdx].findTracks(foundTracks,tmpTrack);
+//
+//		}
+//
+//	}
+//
+//	__syncthreads();
 
 
 
