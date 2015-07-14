@@ -226,7 +226,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 int main()
 {
 	constexpr auto numLayers = 5;
-	constexpr auto numHitsPerLayer = 7;
+	constexpr auto numHitsPerLayer = 2;
 
 	srand (time(NULL));
 	std::pair<float, float> range_eta(0.1, 0.11);
