@@ -98,7 +98,8 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 
 
 	__syncthreads();
-	printf("size of outputCells:%d \n", outputCells.m_size);
+	if(threadIdx.x ==0)
+		printf("size of outputCells:%d \n", outputCells.m_size);
 
 }
 
@@ -117,6 +118,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	auto numberOfOriginHitsInInnerLayers = packetHeader->firstHitIdOnLayer[packetHeader->numLayers-1];
 
 	auto nSteps = (numberOfOriginHitsInInnerLayers+warpNum-1)/warpNum;
+	__syncthreads();
 
 	for (auto i = 0; i < nSteps; ++i)
 	{
