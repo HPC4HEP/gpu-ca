@@ -98,7 +98,7 @@ __device__ void makeCells (const PacketHeader<maxNumLayersInPacket>* __restrict_
 
 
 template <int maxNumLayersInPacket, int maxCellsPerLayer, int maxNeighborsNumPerCell, int doubletParametersNum, int maxHitsNum, int maxTracksNum, int warpSize>
-__global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ packetPayload, Cell<maxNeighborsNumPerCell, doubletParametersNum>* outputCells )
+__global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restrict__ packetHeader, const SimpleHit* __restrict__ packetPayload, Track<maxHitsNum>* outputTracks )
 {
 	auto warpIdx = (blockDim.x*blockIdx.x + threadIdx.x)/warpSize;
 	auto warpNum = blockDim.x/warpSize;
@@ -200,7 +200,19 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 //
 	}
 //
-//	__syncthreads();
+	__syncthreads();
+
+	auto tracksSteps = (foundTracks.m_size + blockDim.x - 1) / blockDim.x;
+	for (auto i = 0; i < tracksSteps; ++i)
+	{
+//
+		auto trackIdx = threadIdx.x + i*blockDim.x;
+		if(trackIdx < foundTracks.m_size)
+		{
+			outputTracks[trackIdx] = foundTracks.m_data[trackIdx];
+		}
+//
+	}
 
 
 
