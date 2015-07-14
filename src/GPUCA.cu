@@ -128,7 +128,6 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 
 	}
 	__syncthreads();
-	__syncthreads();
 	if(threadIdx.x ==0)
 		printf("size of outputCells:%d \n", foundCells.m_size);
 
@@ -167,6 +166,9 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		if(cellIdx < foundCells.m_size && foundCells.m_data[cellIdx].m_layerId < packetHeader->numLayers -1)
 		{
 			foundCells.m_data[cellIdx].neighborSearch(cellsOnLayer[foundCells.m_data[cellIdx].m_layerId+1]);
+			printf("cell %d on layer:%d num rightneighbours: %d first 3: %d %d %d \n",cellIdx, foundCells.m_data[cellIdx].m_layerId, foundCells.m_data[cellIdx].m_rightNeighbors.m_size,
+					foundCells.m_data[cellIdx].m_rightNeighbors.m_data[0],foundCells.m_data[cellIdx].m_rightNeighbors.m_data[1],foundCells.m_data[cellIdx].m_rightNeighbors.m_data[2] );
+
 		}
 
 	}
