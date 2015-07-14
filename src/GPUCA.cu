@@ -301,7 +301,7 @@ int main()
 	for (auto i = 0; i<c_maxTracksNum; ++i)
 	{
 			std::cout << "hits in track:" << host_outputTracks[i].m_cells.m_size << std::endl;
-			for (auto j = 0; j<host_outputTracks[i].m_cells.m_size ; ++j)
+			for (auto j = 0; j<c_maxHitsNumPerTrack ; ++j)
 			{
 				std::cout << "\t hit " << j << " : " << host_outputTracks[i].m_cells.m_data[j] << std::endl;
 			}
