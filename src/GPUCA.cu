@@ -195,7 +195,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		if(cellIdx < cellsOnLayer[0].m_size)
 		{
 
-			foundCells.m_data[cellIdx].findTracks(foundTracks,tmpTrack);
+			foundCells.m_data[cellsOnLayer[0].m_data[cellIdx]].findTracks(foundTracks,tmpTrack);
 
 		}
 		//
