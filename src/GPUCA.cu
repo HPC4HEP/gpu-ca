@@ -209,7 +209,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		{
 			Track<maxHitsNum> tmpTrack;
 			tmpTrack.m_cells.push_singleThread(cellsOnLayer[0].m_data[cellIdx]);
-			tmpTrack.m_hits.push(foundCells.m_data[cellsOnLayer[0].m_data[cellIdx]].m_innerHitId);
+			tmpTrack.m_hits.push_singleThread(foundCells.m_data[cellsOnLayer[0].m_data[cellIdx]].m_innerHitId);
 
 //			if(cellIdx ==0)
 //			{
