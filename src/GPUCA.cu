@@ -25,7 +25,7 @@ constexpr int c_doubletParametersNum = sizeof(c_maxDoubletRelDifference)/sizeof(
 constexpr int c_maxCellsNumPerLayer  = 64;
 constexpr int c_maxNeighborsNumPerCell = 6;
 constexpr int c_maxHitsNumPerTrack = 5;
-constexpr int c_maxTracksNum = 32;
+constexpr int c_maxTracksNum = 64;
 
 template <int maxNumLayersInPacket>
 __inline__
