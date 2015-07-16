@@ -213,7 +213,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 			tmpTrack.m_cells.push_singleThread(cellsOnLayer[0].m_data[cellIdx]);
 			if(cellIdx ==0)
 			{
-				printf("tmpTrack size %d \n",tmpTrack.m_cells.m_size )
+				printf("tmpTrack size %d \n",tmpTrack.m_cells.m_size );
 
 				for(auto j =0; j<maxHitsNum; ++j)
 				{
@@ -224,7 +224,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 			foundCells.m_data[cellsOnLayer[0].m_data[cellIdx]].findTracks(foundTracks,tmpTrack);
 			if(cellIdx ==0)
 				{
-					printf("tmpTrack size %d \n",tmpTrack.m_cells.m_size )
+					printf("tmpTrack size %d \n",tmpTrack.m_cells.m_size );
 
 					for(auto j =0; j<maxHitsNum; ++j)
 					{
