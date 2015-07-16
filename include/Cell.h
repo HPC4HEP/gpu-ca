@@ -87,7 +87,7 @@ public:
 
 
 
-//check whether a Cell and the root have compatible parameters.
+	//check whether a Cell and the root have compatible parameters.
 	__inline__
 	__device__
 	bool areCompatible(const Cell& a, const Cell& root)
@@ -125,27 +125,29 @@ public:
 				return;
 		}
 		else{
-//			bool hasOneCompatibleNeighbor = false;
-//			for( auto i=0 ; i < m_rightNeighbors.m_size; ++i)
-//			{
-//				if(areCompatible(m_cellsArray[m_rightNeighbors.m_data[i]], m_cellsArray[tmpTrack.m_cells.m_data[0]]) )
-//				{
-//					hasOneCompatibleNeighbor = true;
-//					tmpTrack.m_cells.push_singleThread(m_rightNeighbors.m_data[i]);
-//					m_cellsArray[m_rightNeighbors.m_data[i]].findTracks<maxTracksNum, maxHitsNum>(foundTracks, tmpTrack);
-//					tmpTrack.m_cells.pop_back_singleThread();
-//
-//				}
-//
-//			}
-//			if (!hasOneCompatibleNeighbor && tmpTrack.m_cells.m_size >= c_minHitsPerTrack-1)
-//			{
-//				foundTracks.push(tmpTrack);
-//			}
-			tmpTrack.m_cells.push_singleThread(m_rightNeighbors.m_data[i]);
-			m_cellsArray[m_rightNeighbors.m_data[i]].findTracks<maxTracksNum, maxHitsNum>(foundTracks, tmpTrack);
-			tmpTrack.m_cells.pop_back_singleThread();
-
+			//			bool hasOneCompatibleNeighbor = false;
+			//			for( auto i=0 ; i < m_rightNeighbors.m_size; ++i)
+			//			{
+			//				if(areCompatible(m_cellsArray[m_rightNeighbors.m_data[i]], m_cellsArray[tmpTrack.m_cells.m_data[0]]) )
+			//				{
+			//					hasOneCompatibleNeighbor = true;
+			//					tmpTrack.m_cells.push_singleThread(m_rightNeighbors.m_data[i]);
+			//					m_cellsArray[m_rightNeighbors.m_data[i]].findTracks<maxTracksNum, maxHitsNum>(foundTracks, tmpTrack);
+			//					tmpTrack.m_cells.pop_back_singleThread();
+			//
+			//				}
+			//
+			//			}
+			//			if (!hasOneCompatibleNeighbor && tmpTrack.m_cells.m_size >= c_minHitsPerTrack-1)
+			//			{
+			//				foundTracks.push(tmpTrack);
+			//			}
+			for( auto i=0 ; i < m_rightNeighbors.m_size; ++i)
+			{
+				tmpTrack.m_cells.push_singleThread(m_rightNeighbors.m_data[i]);
+				m_cellsArray[m_rightNeighbors.m_data[i]].findTracks<maxTracksNum, maxHitsNum>(foundTracks, tmpTrack);
+				tmpTrack.m_cells.pop_back_singleThread();
+			}
 
 		}
 
