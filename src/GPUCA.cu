@@ -214,7 +214,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 
 				for(auto j =0; j<maxHitsNum; ++j)
 				{
-					printf("\t cellid: %d\n",tmpTrack.m_cells.m_data[j]);
+					printf("\t cellid: %d on layer:%d innerHitId:%d outerHitId:%d\n",foundCells.m_data[tmpTrack.m_cells.m_data[j]], foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_layerId, foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_innerHitId, foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_outerHitId);
 				}
 
 			}
@@ -225,7 +225,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 
 				for(auto j =0; j<maxHitsNum; ++j)
 				{
-					printf("\t cellid: %d\n",tmpTrack.m_cells.m_data[j]);
+					printf("\t cellid: %d on layer:%d innerHitId:%d outerHitId:%d\n",foundCells.m_data[tmpTrack.m_cells.m_data[j]], foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_layerId, foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_innerHitId, foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_outerHitId);
 				}
 
 			}
@@ -236,7 +236,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 
 					for(auto j =0; j<maxHitsNum; ++j)
 					{
-						printf("\t cellid: %d\n",tmpTrack.m_cells.m_data[j]);
+						printf("\t cellid: %d on layer:%d innerHitId:%d outerHitId:%d\n",foundCells.m_data[tmpTrack.m_cells.m_data[j]], foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_layerId, foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_innerHitId, foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_outerHitId);
 					}
 
 				}
