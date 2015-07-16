@@ -208,22 +208,12 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		if(cellIdx < cellsOnLayer[0].m_size)
 		{
 			Track<maxHitsNum> tmpTrack;
-			if(cellIdx ==0)
-			{
-				printf("tmpTrack size %d \n",tmpTrack.m_cells.m_size );
-
-				for(auto j =0; j<maxHitsNum; ++j)
-				{
-					printf("\t cellid: %d on layer:%d innerHitId:%d outerHitId:%d\n",foundCells.m_data[tmpTrack.m_cells.m_data[j]], foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_layerId, foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_innerHitId, foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_outerHitId);
-				}
-
-			}
 			tmpTrack.m_cells.push_singleThread(cellsOnLayer[0].m_data[cellIdx]);
 			if(cellIdx ==0)
 			{
 				printf("tmpTrack size %d \n",tmpTrack.m_cells.m_size );
 
-				for(auto j =0; j<maxHitsNum; ++j)
+				for(auto j =0; j<tmpTrack.m_cells.m_size; ++j)
 				{
 					printf("\t cellid: %d on layer:%d innerHitId:%d outerHitId:%d\n",foundCells.m_data[tmpTrack.m_cells.m_data[j]], foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_layerId, foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_innerHitId, foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_outerHitId);
 				}
@@ -234,7 +224,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 				{
 					printf("tmpTrack size %d \n",tmpTrack.m_cells.m_size );
 
-					for(auto j =0; j<maxHitsNum; ++j)
+					for(auto j =0; j<tmpTrack.m_cells.m_size; ++j)
 					{
 						printf("\t cellid: %d on layer:%d innerHitId:%d outerHitId:%d\n",foundCells.m_data[tmpTrack.m_cells.m_data[j]], foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_layerId, foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_innerHitId, foundCells.m_data[tmpTrack.m_cells.m_data[j]].m_outerHitId);
 					}
