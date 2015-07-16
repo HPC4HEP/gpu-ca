@@ -15,9 +15,6 @@
 
 
 
-// Maximum relative difference (par1_A - par1_B)/par1_A for each parameters
-constexpr float c_maxParRelDifference[]{0.1, 0.1, 0.1};
-constexpr int c_numParameters = sizeof(c_maxParRelDifference)/sizeof(c_maxParRelDifference[0]);
 
 // maxSize is the maximum number of neighbors that a Cell can have
 // parNum is the number of parameters to check for the neighbors conditions
@@ -27,23 +24,26 @@ class Cell
 {
 public:
 	__host__ __device__ Cell() : m_CAState(0), m_id(0), m_innerHitId(0), m_outerHitId(0), m_cellsArray(0), m_layerId(0) { }
-	__host__ __device__ Cell(int innerHitId, int outerHitId, int layerId, Cell* cellsArray) : m_CAState(0), m_id(this - cellsArray), m_innerHitId(innerHitId), m_outerHitId(outerHitId), m_cellsArray(cellsArray), m_layerId(layerId) { }
+	__host__ __device__ Cell(int innerHitId, int outerHitId, int layerId, Cell* cellsArray) : m_CAState(0), m_innerHitId(innerHitId), m_outerHitId(outerHitId), m_cellsArray(cellsArray), m_layerId(layerId) { }
 
 	template< int queueMaxSize>
 	__inline__
 	__device__ int neighborSearch(const CUDAQueue<queueMaxSize, int>& rightCells)
 	{
+		const float c_maxParAbsDifference[parNum]= {0.1, 0.1};
+
+
 		int neighborNum = 0;
 
 		for (auto i= 0; i < rightCells.m_size; ++i)
 		{
-			if(m_cellsArray[rightCells.m_data[i]]->m_innerHitId != m_outerHitId)
+			if(m_cellsArray[rightCells.m_data[i]].m_innerHitId != m_outerHitId)
 				continue;
 			bool isNeighbor = true;
 
 			for (auto j =0; j < m_params.m_size; ++j )
 			{
-				isNeighbor = isNeighbor & (fabs(2*(m_params.m_data[j] - m_cellsArray[rightCells.m_data[i]]->m_params[j]) /(m_params.m_data[j]+m_cellsArray[rightCells.m_data[i]]->m_params[j]))  < c_maxParRelDifference[j]);
+				isNeighbor = isNeighbor & (fabs((m_params.m_data[j] - m_cellsArray[rightCells.m_data[i]].m_params.m_data[j]))  < c_maxParAbsDifference[j]);
 				if(!isNeighbor)
 					break;
 
@@ -53,7 +53,7 @@ public:
 			// viceversa this cell will be the left neighbors for rightNeighbor(i)
 			if (isNeighbor)
 			{
-				m_cellsArray[rightCells.m_data[i]]->m_leftNeighbors.push(m_id);
+				m_cellsArray[rightCells.m_data[i]].m_leftNeighbors.push(m_id);
 				m_rightNeighbors.push(m_cellsArray[rightCells.m_data[i]].m_id);
 				++neighborNum;
 			}
@@ -65,11 +65,11 @@ public:
 
 	// if there is at least one left neighbor with the same state (friend), the state has to be increased by 1.
 	__inline__
-	__device__ void evolve() {
+	__device__ int evolve() {
 		auto hasFriends = false;
 		for(auto i =0; i < m_leftNeighbors.m_size; ++i)
 		{
-			if(m_cellsArray[m_leftNeighbors.m_data[i]]->m_CAState == m_CAState)
+			if(m_cellsArray[m_leftNeighbors.m_data[i]].m_CAState == m_CAState)
 			{
 				hasFriends = true;
 				break;
@@ -77,7 +77,11 @@ public:
 		}
 		__syncthreads();
 		if(hasFriends)
+		{
 			m_CAState++;
+		}
+		return m_CAState;
+
 	}
 
 
@@ -86,12 +90,14 @@ public:
 //check whether a Cell and the root have compatible parameters.
 	__inline__
 	__device__
-	bool areCompatible(Cell* a, Cell* root)
+	bool areCompatible(const Cell& a, const Cell& root)
 	{
-		for (auto j =0; j < a->m_params.m_size; ++j )
+		const float c_maxParAbsDifference[parNum]= {0.5, 0.5};
+
+		for (auto j =0; j < a.m_params.m_size; ++j )
 		{
-			bool isCompatible = (m_CAState < a->m_CAState) &&
-					(fabs(2*(a->m_params.m_data[j] - root->m_params.m_data[j]) /(a->m_params.m_data[j]+root->m_params.m_data[j]))  < c_maxParRelDifference[j]);
+			bool isCompatible = (m_CAState < a.m_CAState) &&
+					(fabs((a.m_params.m_data[j] - root.m_params.m_data[j]))  < c_maxParAbsDifference[j]);
 			if(!isCompatible)
 				return false;
 
@@ -122,12 +128,12 @@ public:
 			bool hasOneCompatibleNeighbor = false;
 			for( auto i=0 ; i < m_rightNeighbors.m_size; ++i)
 			{
-				if(areCompatible(&m_cellsArray[m_rightNeighbors.m_data[i]], &m_cellsArray[tmpTrack.m_cells[0]]) )
+				if(areCompatible(m_cellsArray[m_rightNeighbors.m_data[i]], m_cellsArray[tmpTrack.m_cells.m_data[0]]) )
 				{
 					hasOneCompatibleNeighbor = true;
-					tmpTrack.m_cells.push(m_rightNeighbors.m_data[i]);
-					m_cellsArray[m_rightNeighbors.m_data[i]]->findTracks<maxTracksNum, maxHitsNum>(foundTracks, tmpTrack);
-					tmpTrack.m_cells.pop_back();
+					tmpTrack.m_cells.push_singleThread(m_rightNeighbors.m_data[i]);
+					m_cellsArray[m_rightNeighbors.m_data[i]].findTracks<maxTracksNum, maxHitsNum>(foundTracks, tmpTrack);
+					tmpTrack.m_cells.pop_back_singleThread();
 
 				}
 

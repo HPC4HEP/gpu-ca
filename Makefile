@@ -3,7 +3,7 @@ SRCDIR=./src
 CC=g++
 NVCC=nvcc
 CFLAGS=-I$(IDIR) -std=c++11
-CUDAFLAGS=
+CUDAFLAGS=-arch=sm_35
 ODIR=./obj
 LDIR =./lib
 
@@ -24,7 +24,7 @@ $(ODIR)/%.o: $(SRCDIR)/%.cu $(DEPS)
 
 
 GPUCA: $(OBJ)
-	$(NVCC) --default-stream per-thread -o $(OUTPUTDIR)/$@ $^ $(CFLAGS) $(LIBS)
+	$(NVCC) --default-stream per-thread -arch=sm_35 -o $(OUTPUTDIR)/$@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean
 
