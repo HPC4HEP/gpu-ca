@@ -208,8 +208,16 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		if(cellIdx < cellsOnLayer[0].m_size)
 		{
 			Track<maxHitsNum> tmpTrack;
+			if(cellIdx ==0)
+			{
+				printf("tmpTrack size %d \n",tmpTrack.m_cells.m_size );
 
+				for(auto j =0; j<maxHitsNum; ++j)
+				{
+					printf("\t cellid: %d\n",tmpTrack.m_cells.m_data[j]);
+				}
 
+			}
 			tmpTrack.m_cells.push_singleThread(cellsOnLayer[0].m_data[cellIdx]);
 			if(cellIdx ==0)
 			{
