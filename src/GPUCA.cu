@@ -185,7 +185,8 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 			if(cellIdx < foundCells.m_size)
 			{
 
-				auto printstate= foundCells.m_data[cellIdx].evolve();
+//				auto printstate=
+						foundCells.m_data[cellIdx].evolve();
 //				printf("cell %d on layer:%d innerHitId:%d outerHitId:%d state: %d \n",
 //						cellIdx,foundCells.m_data[cellIdx].m_layerId, foundCells.m_data[cellIdx].m_innerHitId, foundCells.m_data[cellIdx].m_outerHitId, printstate);
 			}
@@ -207,11 +208,30 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 		if(cellIdx < cellsOnLayer[0].m_size)
 		{
 			Track<maxHitsNum> tmpTrack;
+
+
 			tmpTrack.m_cells.push_singleThread(cellsOnLayer[0].m_data[cellIdx]);
+			if(cellIdx ==0)
+			{
+				printf("tmpTrack size %d \n",tmpTrack.m_cells.m_size )
 
+				for(auto j =0; j<maxHitsNum; ++j)
+				{
+					printf("\t cellid: %d\n",tmpTrack.m_cells.m_data[j]);
+				}
 
+			}
 			foundCells.m_data[cellsOnLayer[0].m_data[cellIdx]].findTracks(foundTracks,tmpTrack);
+			if(cellIdx ==0)
+				{
+					printf("tmpTrack size %d \n",tmpTrack.m_cells.m_size )
 
+					for(auto j =0; j<maxHitsNum; ++j)
+					{
+						printf("\t cellid: %d\n",tmpTrack.m_cells.m_data[j]);
+					}
+
+				}
 		}
 		//
 	}
