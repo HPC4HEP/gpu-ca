@@ -35,12 +35,11 @@ struct CUDAQueue
 
 	__inline__ __device__
 	int push_singleThread(const T& element) {
-
-		auto previousSize = m_size++;
-		if(previousSize<maxSize)
+		if(m_size < maxSize)
 		{
-			m_data[previousSize] = element;
-			return previousSize;
+			m_data[m_size] = element;
+			m_size++;
+			return m_size;
 		} else
 			return -1;
 	};
