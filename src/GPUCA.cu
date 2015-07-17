@@ -112,6 +112,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	__shared__ CUDAQueue<maxCellsNum, Cell<maxNeighborsNumPerCell, doubletParametersNum> > foundCells;
 	__shared__ CUDAQueue<maxCellsPerLayer, int > cellsOnLayer[maxNumLayersInPacket];
 	__shared__ CUDAQueue<maxTracksNum, Track<maxHitsNum> > foundTracks;
+	__shared__ CUDAQueue<2*maxCellsPerLayer, int> rootCells;
 	//We will now create cells with the inner hit on each layer except the last one, which does not have a layer next to it.
 	auto numberOfOriginHitsInInnerLayers = packetHeader->firstHitIdOnLayer[packetHeader->numLayers-1];
 
@@ -176,6 +177,8 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 	}
 	__syncthreads();
 
+
+
 	auto CAevolutionIterationsNum = packetHeader->numLayers - 2;
 	for(auto l = 0; l < CAevolutionIterationsNum; ++l)
 	{
@@ -184,7 +187,11 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 			auto cellIdx = threadIdx.x + i*blockDim.x;
 			if(cellIdx < foundCells.m_size)
 			{
+				if(l == 0)
+				{
+					foundCells.m_data[cellIdx].isRootCell(rootCells);
 
+				}
 //				auto printstate=
 						foundCells.m_data[cellIdx].evolve();
 //				printf("cell %d on layer:%d innerHitId:%d outerHitId:%d state: %d \n",
@@ -199,17 +206,17 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 
 
 	// only 1 thread per cell on the first layer will now look for tracks
-	auto cellsOnInnermostLayer = (cellsOnLayer[0].m_size + blockDim.x - 1) / blockDim.x;
+	auto cellsOnInnermostLayer = (rootCells.m_size + blockDim.x - 1) / blockDim.x;
 	for (auto i = 0; i < cellsOnInnermostLayer; ++i)
 	{
 		//
 		auto cellIdx = threadIdx.x + i*blockDim.x;
 
-		if(cellIdx < cellsOnLayer[0].m_size)
+		if(cellIdx < rootCells.m_size)
 		{
 			Track<maxHitsNum> tmpTrack;
-			tmpTrack.m_cells.push_singleThread(cellsOnLayer[0].m_data[cellIdx]);
-			tmpTrack.m_hits.push_singleThread(foundCells.m_data[cellsOnLayer[0].m_data[cellIdx]].m_innerHitId);
+			tmpTrack.m_cells.push_singleThread(rootCells.m_data[cellIdx]);
+			tmpTrack.m_hits.push_singleThread(foundCells.m_data[rootCells.m_data[cellIdx]].m_innerHitId);
 
 //			if(cellIdx ==0)
 //			{
@@ -221,7 +228,7 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 //				}
 //
 //			}
-			foundCells.m_data[cellsOnLayer[0].m_data[cellIdx]].findTracks(foundTracks,tmpTrack);
+			foundCells.m_data[rootCells.m_data[cellIdx]].findTracks(foundTracks,tmpTrack);
 //			if(cellIdx ==0)
 //				{
 //					printf("tmpTrack size %d \n",tmpTrack.m_cells.m_size );

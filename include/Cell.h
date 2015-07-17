@@ -63,6 +63,14 @@ public:
 	}
 
 
+	template< int queueMaxSize>
+	__inline__
+	__device__ void isRootCell(CUDAQueue<queueMaxSize, int>& rootCells)
+	{
+		if(m_leftNeighbors.m_size == 0)
+			rootCells.push(m_id);
+	}
+
 	// if there is at least one left neighbor with the same state (friend), the state has to be increased by 1.
 	__inline__
 	__device__ int evolve() {
