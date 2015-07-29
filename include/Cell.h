@@ -67,7 +67,7 @@ public:
 	__inline__
 	__device__ void isRootCell(CUDAQueue<queueMaxSize, int>& rootCells)
 	{
-		if(m_leftNeighbors.m_size == 0)
+		if(m_leftNeighbors.m_size == 0 && m_CAState > 2)
 			rootCells.push(m_id);
 	}
 
@@ -75,9 +75,9 @@ public:
 	__inline__
 	__device__ int evolve() {
 		auto hasFriends = false;
-		for(auto i =0; i < m_leftNeighbors.m_size; ++i)
+		for(auto i =0; i < m_rightNeighbors.m_size; ++i)
 		{
-			if(m_cellsArray[m_leftNeighbors.m_data[i]].m_CAState == m_CAState)
+			if(m_cellsArray[m_rightNeighbors.m_data[i]].m_CAState == m_CAState)
 			{
 				hasFriends = true;
 				break;

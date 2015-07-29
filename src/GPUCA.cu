@@ -187,15 +187,17 @@ __global__ void singleBlockCA (const PacketHeader<maxNumLayersInPacket>* __restr
 			auto cellIdx = threadIdx.x + i*blockDim.x;
 			if(cellIdx < foundCells.m_size)
 			{
-				if(l == 0)
-				{
-					foundCells.m_data[cellIdx].isRootCell(rootCells);
 
-				}
 //				auto printstate=
 						foundCells.m_data[cellIdx].evolve();
 //				printf("cell %d on layer:%d innerHitId:%d outerHitId:%d state: %d \n",
 //						cellIdx,foundCells.m_data[cellIdx].m_layerId, foundCells.m_data[cellIdx].m_innerHitId, foundCells.m_data[cellIdx].m_outerHitId, printstate);
+
+						if(l == CAevolutionIterationsNum)
+						{
+							foundCells.m_data[cellIdx].isRootCell(rootCells);
+
+						}
 			}
 
 
