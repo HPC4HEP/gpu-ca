@@ -64,8 +64,8 @@ struct CUDAQueue
 			return m_data[previousSize];
 		}
 
-
 	};
+
 	__inline__ __device__
 	bool insertArray(T* array, int numElements)
 	{
